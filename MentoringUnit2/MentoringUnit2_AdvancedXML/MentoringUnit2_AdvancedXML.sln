@@ -3,7 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MentoringUnit2_Task1", "MentoringUnit2_Task1\MentoringUnit2_Task1.csproj", "{99A74B73-4006-4240-97B9-CD7A84A73D8F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Task1", "Task1", "{BACF02A0-57AC-4D27-9781-671711AA8166}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MentoringUnit2_Task1_Tests", "Task1\MentoringUnit2_Task1_Tests\MentoringUnit2_Task1_Tests.csproj", "{99A74B73-4006-4240-97B9-CD7A84A73D8F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Task2", "Task2", "{AD243C93-BADB-48E7-8798-BCCD0EB24246}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MentoringUnit2_Task2_Tests", "Task2\MentoringUnit2_Task2_Tests\MentoringUnit2_Task2_Tests.csproj", "{ECAB944A-8656-4EB0-B523-DAB636D9D354}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlValidator", "Task1\XmlValidator\XmlValidator.csproj", "{1B9D098B-3E05-49B1-8844-415B1E046247}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MentoringUnit2_Task1", "Task1\MentoringUnit2_Task1\MentoringUnit2_Task1.csproj", "{FA4565A5-0271-4E69-A2AC-4E5B9C5F7223}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +25,26 @@ Global
 		{99A74B73-4006-4240-97B9-CD7A84A73D8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99A74B73-4006-4240-97B9-CD7A84A73D8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99A74B73-4006-4240-97B9-CD7A84A73D8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECAB944A-8656-4EB0-B523-DAB636D9D354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECAB944A-8656-4EB0-B523-DAB636D9D354}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECAB944A-8656-4EB0-B523-DAB636D9D354}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECAB944A-8656-4EB0-B523-DAB636D9D354}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B9D098B-3E05-49B1-8844-415B1E046247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B9D098B-3E05-49B1-8844-415B1E046247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B9D098B-3E05-49B1-8844-415B1E046247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B9D098B-3E05-49B1-8844-415B1E046247}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA4565A5-0271-4E69-A2AC-4E5B9C5F7223}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA4565A5-0271-4E69-A2AC-4E5B9C5F7223}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA4565A5-0271-4E69-A2AC-4E5B9C5F7223}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA4565A5-0271-4E69-A2AC-4E5B9C5F7223}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{99A74B73-4006-4240-97B9-CD7A84A73D8F} = {BACF02A0-57AC-4D27-9781-671711AA8166}
+		{ECAB944A-8656-4EB0-B523-DAB636D9D354} = {AD243C93-BADB-48E7-8798-BCCD0EB24246}
+		{1B9D098B-3E05-49B1-8844-415B1E046247} = {BACF02A0-57AC-4D27-9781-671711AA8166}
+		{FA4565A5-0271-4E69-A2AC-4E5B9C5F7223} = {BACF02A0-57AC-4D27-9781-671711AA8166}
 	EndGlobalSection
 EndGlobal

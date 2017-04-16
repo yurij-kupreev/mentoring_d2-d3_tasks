@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using XmlValidator;
 
-namespace MentoringUnit2_Task1
+namespace MentoringUnit2_Task1_Tests
 {
   [TestClass]
   public class BookXmlSchemaTests
@@ -9,11 +9,11 @@ namespace MentoringUnit2_Task1
     private const string NameSpace = "http://library.by/catalog";
     private const string CsdFileName = "books.xsd";
 
-    private readonly XmlValidator _xmlValidator;
+    private readonly XmlValidatorService _xmlValidator;
 
     public BookXmlSchemaTests()
     {
-      _xmlValidator = new XmlValidator(NameSpace, CsdFileName);
+      _xmlValidator = new XmlValidatorService(NameSpace, CsdFileName);
     }
 
     [TestMethod]

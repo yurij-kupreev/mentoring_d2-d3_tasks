@@ -2,16 +2,16 @@
 using System.Xml;
 using System.Xml.Schema;
 
-namespace MentoringUnit2_Task1
+namespace XmlValidator
 {
-  public class XmlValidator
+  public class XmlValidatorService
   {
     private readonly string _nameSpace;
     private readonly string _xsdFileName;
 
     private static bool _succesResult;
 
-    public XmlValidator(string nameSpace, string xsdFileName)
+    public XmlValidatorService(string nameSpace, string xsdFileName)
     {
       _nameSpace = nameSpace;
       _xsdFileName = xsdFileName;
