@@ -4,3 +4,4 @@ packages/
 TestResults/
 *.suo
 *.csproj.user
+.vs/
