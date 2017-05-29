@@ -1,48 +1,58 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
+using MentoringUnit4_WindowsServices.Repositories;
 
 namespace MentoringUnit4_WindowsServices.FileProcessors
 {
-  class ImagesProcessor : FileProcessor
+  public class ImagesProcessor : FileProcessor
   {
-    private PdfHelper _pdfHelper;
+    private readonly PdfHelper _pdfHelper;
 
-    public ImagesProcessor(string inDirectory, string outDirectory, ManualResetEvent workStopped)
-        : base(inDirectory, outDirectory, workStopped)
+    private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
+    private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
+
+    public ImagesProcessor(string sourceDirectory, ManualResetEvent workStopped, IFileRepository fileRepository, string pdfTempDirectory)
+        : base(sourceDirectory, workStopped, fileRepository)
     {
-      _pdfHelper = new PdfHelper();
+       this.CreateIfNotExist(pdfTempDirectory);
+
+       _pdfHelper = new PdfHelper(pdfTempDirectory);
     }
 
     protected override void WorkProcess()
     {
       var wasEndImage = false;
       _pdfHelper.CreateNewDocument();
-      if (_workStopped.WaitOne(0))
+      if (WorkStopped.WaitOne(0))
       {
         TrySaveDocument(3);
         return;
       }
-      foreach (var filePath in Directory.EnumerateFiles(_inDirectory))
+      foreach (var filePath in Directory.EnumerateFiles(SourceDirectory))
       {
-        if (_workStopped.WaitOne(0))
+        if (WorkStopped.WaitOne(0))
         {
           if (wasEndImage) TrySaveDocument(3);
           return;
         }
+
         if (IsImage(filePath) && TryToOpen(filePath, 3))
         {
           wasEndImage = wasEndImage | IsEndImage(filePath);
           _pdfHelper.AddImage(filePath);
         }
       }
-      if (wasEndImage) TrySaveDocument(3);
+
+      if (wasEndImage)
+      {
+        TrySaveDocument(3);
+      }
     }
 
     private bool IsImage(string fileName)
     {
-      var pattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
-      var regex = new Regex(pattern, RegexOptions.IgnoreCase);
+      var regex = new Regex(ImageFileNamePattern, RegexOptions.IgnoreCase);
 
       return regex.IsMatch(fileName);
     }
@@ -51,8 +61,7 @@ namespace MentoringUnit4_WindowsServices.FileProcessors
     //The file should end with "End" substring. "True" result should run pdf save process.
     private bool IsEndImage(string fileName)
     {
-      var pattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
-      var regex = new Regex(pattern, RegexOptions.IgnoreCase);
+      var regex = new Regex(EndImageFileNamePattern, RegexOptions.IgnoreCase);
 
       return regex.IsMatch(fileName);
     }
@@ -63,8 +72,17 @@ namespace MentoringUnit4_WindowsServices.FileProcessors
       {
         try
         {
-          _pdfHelper.SaveDocument(_outDirectory);
-          return;
+          var filePath = _pdfHelper.SaveDocument();
+
+          if (string.IsNullOrEmpty(filePath) == false)
+          {
+            var sourceDirectory = Path.GetDirectoryName(filePath);
+            var fileName = Path.GetFileName(filePath);
+
+            FileRepository.MoveFile(sourceDirectory, fileName);
+
+            return;
+          }
         }
         catch (IOException)
         {

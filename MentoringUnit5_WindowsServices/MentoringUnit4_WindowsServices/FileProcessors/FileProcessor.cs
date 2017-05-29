@@ -1,30 +1,33 @@
 ﻿using System.IO;
 using System.Threading;
+using MentoringUnit4_WindowsServices.Repositories;
 
 namespace MentoringUnit4_WindowsServices.FileProcessors
 {
-  internal class FileProcessor
+  public class FileProcessor
   {
-    public FileSystemWatcher _watcher { get; private set; }
+    public FileSystemWatcher Watcher { get; }
 
-    protected string _inDirectory;
-    protected string _outDirectory;
-    protected ManualResetEvent _workStopped;
-    protected AutoResetEvent _newFileAdded;
+    protected string SourceDirectory;
+    protected ManualResetEvent WorkStopped;
+    protected AutoResetEvent NewFileAdded;
 
-    public FileProcessor(string inDirectory, string outDirectory, ManualResetEvent workStopped)
+    protected readonly IFileRepository FileRepository;
+
+    public FileProcessor(string directory, ManualResetEvent workStopped, IFileRepository fileRepository)
     {
-      _inDirectory = inDirectory;
-      _outDirectory = outDirectory;
+      FileRepository = fileRepository;
 
-      CreateIfNotExist(_inDirectory);
-      CreateIfNotExist(_outDirectory);
+      SourceDirectory = directory;
 
-      _workStopped = workStopped;
-      _newFileAdded = new AutoResetEvent(false);
+      CreateIfNotExist(SourceDirectory);
 
-      _watcher = new FileSystemWatcher(_inDirectory);
-      _watcher.Created += On_Created;
+      WorkStopped = workStopped;
+
+      NewFileAdded = new AutoResetEvent(false);
+
+      Watcher = new FileSystemWatcher(SourceDirectory);
+      Watcher.Created += On_Created;
     }
 
     public Thread GetThread()
@@ -38,19 +41,21 @@ namespace MentoringUnit4_WindowsServices.FileProcessors
       {
         WorkProcess();
       }
-      while (WaitHandle.WaitAny(new WaitHandle[] { _workStopped, _newFileAdded }) != 0);
+      while (WaitHandle.WaitAny(new WaitHandle[] { WorkStopped, NewFileAdded }) != 0);
     }
 
     protected virtual void WorkProcess()
     {
-      if (_workStopped.WaitOne(0)) return;
-      foreach (var filePath in Directory.EnumerateFiles(_inDirectory))
+      if (WorkStopped.WaitOne(0)) return;
+
+      foreach (var filePath in Directory.EnumerateFiles(SourceDirectory))
       {
-        if (_workStopped.WaitOne(0)) return;
+        if (WorkStopped.WaitOne(0)) return;
+
         if (TryToOpen(filePath, 3))
         {
           var fileName = Path.GetFileName(filePath);
-          MoveFile(Path.Combine(_inDirectory, fileName), Path.Combine(_outDirectory, fileName));
+          FileRepository.MoveFile(SourceDirectory, fileName);
         }
       }
     }
@@ -75,22 +80,12 @@ namespace MentoringUnit4_WindowsServices.FileProcessors
       return false;
     }
 
-    private static void MoveFile(string sourceFilePath, string newFilePath)
-    {
-      if (File.Exists(newFilePath))
-      {
-        File.Delete(newFilePath);
-      }
-
-      File.Move(sourceFilePath, newFilePath);
-    }
-
     private void On_Created(object sender, FileSystemEventArgs e)
     {
-      _newFileAdded.Set();
+      NewFileAdded.Set();
     }
 
-    private void CreateIfNotExist(string path)
+    protected void CreateIfNotExist(string path)
     {
       if (!Directory.Exists(path))
       {

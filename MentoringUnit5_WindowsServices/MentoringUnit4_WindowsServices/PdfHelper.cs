@@ -12,7 +12,14 @@ namespace MentoringUnit4_WindowsServices
     private Document _currentDocument;
     private Section _currentSection;
 
+    private readonly string _pdfTempDirectory;
+
     public List<string> Images { get; private set; }
+
+    public PdfHelper(string pdfTempDirectory)
+    {
+      _pdfTempDirectory = pdfTempDirectory;
+    }
 
     public void AddImage(string filePath)
     {
@@ -31,16 +38,23 @@ namespace MentoringUnit4_WindowsServices
       Images.Add(filePath);
     }
 
-    public void SaveDocument(string outDirectory)
+    public string SaveDocument()
     {
       if (_currentDocument != null && Images.Count > 0)
       {
         var render = new PdfDocumentRenderer();
         render.Document = _currentDocument;
         render.RenderDocument();
-        render.Save(Path.Combine(outDirectory, $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf"));
+
+        var pdfFilePath = Path.Combine(_pdfTempDirectory, $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf");
+
+        render.Save(pdfFilePath);
         _currentDocument = null;
+
+        return pdfFilePath;
       }
+
+      return string.Empty;
     }
 
     public void CreateNewDocument()

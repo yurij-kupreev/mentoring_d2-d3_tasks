@@ -13,10 +13,9 @@ namespace MentoringUnit4_WindowsServices
     {
       var currentDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
       var inDir = Path.Combine(currentDir, "in");
-      var outDir = Path.Combine(currentDir, "out");
 
       var logConfig = new LoggingConfiguration();
-      var target = new FileTarget()
+      var target = new FileTarget
       {
         Name = "Default",
         FileName = Path.Combine(currentDir, "log.txt"),
@@ -31,13 +30,13 @@ namespace MentoringUnit4_WindowsServices
       HostFactory.Run(
           hostConf =>
           {
-            hostConf.Service<FileProcessSevice>(
+            hostConf.Service<FileProcessService>(
                       s =>
                       {
-                    s.ConstructUsing(() => new FileProcessSevice(inDir, outDir));
-                    s.WhenStarted(serv => serv.Start());
-                    s.WhenStopped(serv => serv.Stop());
-                  }).UseNLog(logFactory);
+                        s.ConstructUsing(() => new FileProcessService(inDir));
+                        s.WhenStarted(serv => serv.Start());
+                        s.WhenStopped(serv => serv.Stop());
+                      }).UseNLog(logFactory);
             hostConf.SetServiceName("FileMoveService_");
             hostConf.SetDisplayName("File Move Service");
             hostConf.StartManually();
