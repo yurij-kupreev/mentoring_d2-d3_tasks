@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 
-namespace MentoringUnit4_WindowsServices
+namespace MentoringUnit4_WindowsServices.FileProcessors
 {
   internal class FileProcessor
   {

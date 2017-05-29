@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace MentoringUnit4_WindowsServices
+namespace MentoringUnit4_WindowsServices.FileProcessors
 {
   class ImagesProcessor : FileProcessor
   {
