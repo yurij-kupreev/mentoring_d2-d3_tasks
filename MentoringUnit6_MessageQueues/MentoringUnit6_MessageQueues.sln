@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentCaptureService", "DocumentCaptureService\DocumentCaptureService.csproj", "{776ACA18-A882-4BB3-9DFB-E4C27CC6DA1B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentResultsCollectorService.Tests", "DocumentResultsCollectorService.Tests\DocumentResultsCollectorService.Tests.csproj", "{EA94038E-5AB3-4CC5-96BD-E68EC9460598}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentResultsCollectorService", "DocumentResultsCollectorService\DocumentResultsCollectorService.csproj", "{DB6E6679-DD3C-434A-8C39-7AB188832A4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureServiceBusRepository", "AzureServiceBusRepository\AzureServiceBusRepository.csproj", "{84A4F9D1-D50C-45CA-A52C-E608863F9C2F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{776ACA18-A882-4BB3-9DFB-E4C27CC6DA1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{776ACA18-A882-4BB3-9DFB-E4C27CC6DA1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{776ACA18-A882-4BB3-9DFB-E4C27CC6DA1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{776ACA18-A882-4BB3-9DFB-E4C27CC6DA1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA94038E-5AB3-4CC5-96BD-E68EC9460598}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA94038E-5AB3-4CC5-96BD-E68EC9460598}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA94038E-5AB3-4CC5-96BD-E68EC9460598}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA94038E-5AB3-4CC5-96BD-E68EC9460598}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB6E6679-DD3C-434A-8C39-7AB188832A4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB6E6679-DD3C-434A-8C39-7AB188832A4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB6E6679-DD3C-434A-8C39-7AB188832A4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB6E6679-DD3C-434A-8C39-7AB188832A4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84A4F9D1-D50C-45CA-A52C-E608863F9C2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84A4F9D1-D50C-45CA-A52C-E608863F9C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84A4F9D1-D50C-45CA-A52C-E608863F9C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84A4F9D1-D50C-45CA-A52C-E608863F9C2F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
