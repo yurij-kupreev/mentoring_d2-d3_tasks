@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentResultsCollectorSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureServiceBusRepository", "AzureServiceBusRepository\AzureServiceBusRepository.csproj", "{84A4F9D1-D50C-45CA-A52C-E608863F9C2F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{2040B3E0-5ACC-4B21-A13F-A1C088C47AF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{84A4F9D1-D50C-45CA-A52C-E608863F9C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84A4F9D1-D50C-45CA-A52C-E608863F9C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84A4F9D1-D50C-45CA-A52C-E608863F9C2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2040B3E0-5ACC-4B21-A13F-A1C088C47AF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2040B3E0-5ACC-4B21-A13F-A1C088C47AF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2040B3E0-5ACC-4B21-A13F-A1C088C47AF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2040B3E0-5ACC-4B21-A13F-A1C088C47AF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,17 +1,18 @@
 ﻿using System.IO;
+using Common.Models;
 
-namespace DocumentCaptureService.Repositories
+namespace Common.Senders
 {
-  public class LocalStorageRepository : IFileRepository
+  public class LocalStorageSender : FileSender
   {
     private readonly string _destinationDirectory;
 
-    public LocalStorageRepository(string destinationDirectory)
+    public LocalStorageSender(string destinationDirectory)
     {
       _destinationDirectory = destinationDirectory;
     }
 
-    public void MoveFile(string sourceDirectory, string fileName)
+    public override void SendFile(string sourceDirectory, string fileName)
     {
       if (!Directory.Exists(_destinationDirectory))
       {
@@ -27,6 +28,11 @@ namespace DocumentCaptureService.Repositories
       }
 
       File.Move(sourceFilePath, destinationFilePath);
+    }
+
+    public override void SendFile(CustomFile file)
+    {
+      file.Save(_destinationDirectory);
     }
   }
 }

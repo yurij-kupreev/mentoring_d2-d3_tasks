@@ -4,22 +4,16 @@ using System.IO;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.Rendering;
+using Common.Models;
 
-namespace DocumentCaptureService.Helpers
+namespace Common.Helpers
 {
   public class PdfHelper
   {
     private Document _currentDocument;
     private Section _currentSection;
 
-    private readonly string _pdfTempDirectory;
-
     public List<string> Images { get; private set; }
-
-    public PdfHelper(string pdfTempDirectory)
-    {
-      _pdfTempDirectory = pdfTempDirectory;
-    }
 
     public void AddImage(string filePath)
     {
@@ -38,7 +32,7 @@ namespace DocumentCaptureService.Helpers
       Images.Add(filePath);
     }
 
-    public string SaveDocument()
+    public CustomFile SaveDocument()
     {
       if (_currentDocument != null && Images.Count > 0)
       {
@@ -46,15 +40,21 @@ namespace DocumentCaptureService.Helpers
         render.Document = _currentDocument;
         render.RenderDocument();
 
-        var pdfFilePath = Path.Combine(_pdfTempDirectory, $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf");
+        var pdfFileName = $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf";
 
-        render.Save(pdfFilePath);
+        var stream = new MemoryStream();
+        render.Save(stream, false);
+
+        var fileBytes = stream.ToArray();
+
+        var file = new CustomFile(pdfFileName, fileBytes);
+
         _currentDocument = null;
 
-        return pdfFilePath;
+        return file;
       }
 
-      return string.Empty;
+      return null;
     }
 
     public void CreateNewDocument()

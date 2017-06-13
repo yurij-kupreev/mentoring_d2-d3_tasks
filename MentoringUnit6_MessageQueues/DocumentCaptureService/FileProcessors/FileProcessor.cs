@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using Common.Senders;
+using System.IO;
 using System.Threading;
-using DocumentCaptureService.Repositories;
 
 namespace DocumentCaptureService.FileProcessors
 {
@@ -12,11 +12,11 @@ namespace DocumentCaptureService.FileProcessors
     protected ManualResetEvent WorkStopped;
     protected AutoResetEvent NewFileAdded;
 
-    protected readonly IFileRepository FileRepository;
+    protected readonly FileSender _fileRepository;
 
-    public FileProcessor(string directory, ManualResetEvent workStopped, IFileRepository fileRepository)
+    public FileProcessor(string directory, ManualResetEvent workStopped, FileSender fileRepository)
     {
-      FileRepository = fileRepository;
+      _fileRepository = fileRepository;
 
       SourceDirectory = directory;
 
@@ -55,7 +55,7 @@ namespace DocumentCaptureService.FileProcessors
         if (TryToOpen(filePath, 3))
         {
           var fileName = Path.GetFileName(filePath);
-          FileRepository.MoveFile(SourceDirectory, fileName);
+          _fileRepository.SendFile(SourceDirectory, fileName);
         }
       }
     }

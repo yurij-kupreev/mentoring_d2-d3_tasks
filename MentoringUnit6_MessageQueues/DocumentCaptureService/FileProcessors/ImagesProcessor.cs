@@ -1,8 +1,8 @@
-﻿using System.IO;
+﻿using Common.Helpers;
+using Common.Senders;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
-using DocumentCaptureService.Repositories;
-using DocumentCaptureService.Helpers;
 
 namespace DocumentCaptureService.FileProcessors
 {
@@ -13,12 +13,10 @@ namespace DocumentCaptureService.FileProcessors
     private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
     private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
 
-    public ImagesProcessor(string sourceDirectory, ManualResetEvent workStopped, IFileRepository fileRepository, string pdfTempDirectory)
+    public ImagesProcessor(string sourceDirectory, ManualResetEvent workStopped, FileSender fileRepository)
         : base(sourceDirectory, workStopped, fileRepository)
     {
-       this.CreateIfNotExist(pdfTempDirectory);
-
-       _pdfHelper = new PdfHelper(pdfTempDirectory);
+       _pdfHelper = new PdfHelper();
     }
 
     protected override void WorkProcess()
@@ -73,14 +71,11 @@ namespace DocumentCaptureService.FileProcessors
       {
         try
         {
-          var filePath = _pdfHelper.SaveDocument();
+          var customFile = _pdfHelper.SaveDocument();
 
-          if (string.IsNullOrEmpty(filePath) == false)
+          if (customFile != null)
           {
-            var sourceDirectory = Path.GetDirectoryName(filePath);
-            var fileName = Path.GetFileName(filePath);
-
-            FileRepository.MoveFile(sourceDirectory, fileName);
+            _fileRepository.SendFile(customFile);
 
             return;
           }

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading;
 using DocumentCaptureService.FileProcessors;
-using DocumentCaptureService.Repositories;
+using Common.Senders;
 
 namespace DocumentCaptureService.Services
 {
@@ -20,21 +20,18 @@ namespace DocumentCaptureService.Services
 
       var outDirectory = Path.Combine(currentDirectory, "out");
 
-      var pdfTempDirectory = Path.Combine(currentDirectory, "pdfTemp");
-
       _workStopped = new ManualResetEvent(false);
 
       _workingThreads = new List<Thread>();
       _watchers = new List<FileSystemWatcher>();
 
-      var fileRepository = new LocalStorageRepository(outDirectory);
-      var imagesRepository = new LocalStorageRepository(inDirectory);
+      var fileSender = new LocalStorageSender(outDirectory);
       
-      var fileProcessor = new FileProcessor(inDirectory, _workStopped, fileRepository);
+      var fileProcessor = new FileProcessor(inDirectory, _workStopped, fileSender);
       _workingThreads.Add(fileProcessor.GetThread());
       _watchers.Add(fileProcessor.Watcher);
 
-      var imageProcessor = new ImagesProcessor(imagesDirectory, _workStopped, imagesRepository, pdfTempDirectory);
+      var imageProcessor = new ImagesProcessor(imagesDirectory, _workStopped, fileSender);
       _workingThreads.Add(imageProcessor.GetThread());
       _watchers.Add(imageProcessor.Watcher);
     }
