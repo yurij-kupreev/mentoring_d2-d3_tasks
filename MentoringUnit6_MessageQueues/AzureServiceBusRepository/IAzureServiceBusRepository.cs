@@ -9,6 +9,6 @@ namespace AzureServiceBusRepository
   public interface IAzureServiceBusRepository<T> : IDisposable
   {
     void SendItem(T item);
-    T GetItem();
+    T ReceiveItem();
   }
 }

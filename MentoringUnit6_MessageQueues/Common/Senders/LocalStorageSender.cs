@@ -30,7 +30,7 @@ namespace Common.Senders
       File.Move(sourceFilePath, destinationFilePath);
     }
 
-    public override void SendFile(CustomFile file)
+    public override void SendItem(CustomFile file)
     {
       file.Save(_destinationDirectory);
     }

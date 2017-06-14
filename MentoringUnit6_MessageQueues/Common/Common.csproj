@@ -59,9 +59,11 @@
     <Compile Include="Helpers\PdfHelper.cs" />
     <Compile Include="Models\CustomFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Senders\FileServiceBusSender.cs" />
+    <Compile Include="Senders\ServiceBusMultipleFilesSender.cs" />
     <Compile Include="Senders\FileSender.cs" />
+    <Compile Include="Senders\IItemsSender.cs" />
     <Compile Include="Senders\LocalStorageSender.cs" />
+    <Compile Include="Senders\OneDriveFileSender.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AzureServiceBusRepository\AzureServiceBusRepository.csproj">

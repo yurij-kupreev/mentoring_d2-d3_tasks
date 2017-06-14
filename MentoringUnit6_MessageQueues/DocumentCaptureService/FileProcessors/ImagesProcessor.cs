@@ -75,7 +75,7 @@ namespace DocumentCaptureService.FileProcessors
 
           if (customFile != null)
           {
-            _fileRepository.SendFile(customFile);
+            _fileRepository.SendItem(customFile);
 
             return;
           }
