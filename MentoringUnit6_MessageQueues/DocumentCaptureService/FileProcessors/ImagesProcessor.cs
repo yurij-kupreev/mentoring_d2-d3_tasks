@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DocumentCaptureService.FileProcessors
 {
@@ -84,7 +85,7 @@ namespace DocumentCaptureService.FileProcessors
           //  return;
           //}
 
-          _fileRepository.SendFiles(_imageFilePathSet.ToArray());
+          _fileRepository.SendFilesAsync(_imageFilePathSet.ToArray()).Wait();
         }
         catch (IOException)
         {

@@ -1,4 +1,5 @@
-﻿using AzureServiceBusRepository;
+﻿using System.Threading.Tasks;
+using AzureServiceBusRepository;
 using Common.Models;
 
 namespace Common.Senders
@@ -21,6 +22,13 @@ namespace Common.Senders
       this.SendItems(files);
     }
 
+    public override async Task SendItemAsync(CustomFile file)
+    {
+      var files = new CustomFile[] { file };
+
+      await this.SendItemsAsync(files);
+    }
+
     public override void SendItems(CustomFile[] files)
     {
       var filesMessage = new FileMessage
@@ -30,7 +38,20 @@ namespace Common.Senders
 
       using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FileMessage>(_connectionString, _queueName))
       {
-        azureServiceBusRepository.SendItem(filesMessage);
+        azureServiceBusRepository.SendItemAsync(filesMessage).Wait();
+      }
+    }
+
+    public override async Task SendItemsAsync(CustomFile[] files)
+    {
+      var filesMessage = new FileMessage
+      {
+        CustomFiles = files
+      };
+
+      using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FileMessage>(_connectionString, _queueName))
+      {
+        await azureServiceBusRepository.SendItemAsync(filesMessage);
       }
     }
   }

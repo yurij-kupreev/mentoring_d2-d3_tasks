@@ -1,5 +1,6 @@
 ﻿using Common.Models;
 using System;
+using System.Threading.Tasks;
 
 namespace Common.Senders.SingleFileSender
 {
@@ -10,7 +11,17 @@ namespace Common.Senders.SingleFileSender
       throw new NotImplementedException();
     }
 
+    public override Task SendItemAsync(CustomFile items)
+    {
+      throw new NotImplementedException();
+    }
+
     public override void SendItems(CustomFile[] files)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override Task SendItemsAsync(CustomFile[] items)
     {
       throw new NotImplementedException();
     }

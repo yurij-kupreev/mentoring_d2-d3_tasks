@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Common.Models;
 
 namespace Common.Senders
@@ -13,8 +14,11 @@ namespace Common.Senders
       _destinationDirectory = destinationDirectory;
     }
 
-    public override void SendFile(string sourceDirectory, string fileName)
+    public override void SendFile(string filePath)
     {
+      var sourceDirectory = Path.GetDirectoryName(filePath);
+      var fileName = Path.GetFileName(filePath);
+
       if (!Directory.Exists(_destinationDirectory))
       {
         Directory.CreateDirectory(_destinationDirectory);
@@ -36,12 +40,22 @@ namespace Common.Senders
       file.Save(_destinationDirectory);
     }
 
+    public override Task SendItemAsync(CustomFile items)
+    {
+      throw new NotImplementedException();
+    }
+
     public override void SendItems(CustomFile[] files)
     {
       foreach (var file in files)
       {
         this.SendItem(file);
       }
+    }
+
+    public override Task SendItemsAsync(CustomFile[] items)
+    {
+      throw new NotImplementedException();
     }
   }
 }

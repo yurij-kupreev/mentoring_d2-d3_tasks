@@ -1,6 +1,7 @@
 ﻿using Microsoft.ServiceBus.Messaging;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace AzureServiceBusRepository
 {
@@ -48,15 +49,15 @@ namespace AzureServiceBusRepository
       }
     }
 
-    public T ReceiveItem()
+    public async Task<T> ReceiveItemAsync()
     {
-      var message = this.Receive();
+      var message = await this.ReceiveAsync();
       var data = message.GetBody<T>();
 
       return data;
     }
 
-    private BrokeredMessage Receive()
+    private async Task<BrokeredMessage> ReceiveAsync()
     {
       // Create a memory stream to store the large message body.
       var largeMessageStream = new MemoryStream();
@@ -69,7 +70,7 @@ namespace AzureServiceBusRepository
       while (true)
       {
         // Receive a sub message
-        var subMessage = session.Receive(TimeSpan.FromSeconds(5));
+        var subMessage = await session.ReceiveAsync(TimeSpan.FromSeconds(5));
 
         if (subMessage != null)
         {
@@ -94,14 +95,14 @@ namespace AzureServiceBusRepository
       return largeMessage;
     }
 
-    public void SendItem(T item)
+    public async Task SendItemAsync(T item)
     {
       var mess = new BrokeredMessage(item);
 
-      this.SendLargeItem(new BrokeredMessage(item));
+      await this.SendLargeItemAsync(new BrokeredMessage(item));
     }
 
-    private void SendLargeItem(BrokeredMessage message)
+    private async Task SendLargeItemAsync(BrokeredMessage message)
     {
       var subMessageBodySize = (_messageQueueMessageMaxSizeKBytes - MaxMessageHeaderSizeKBytes) * 1024; // max size of chunk (bytes)
 
@@ -135,7 +136,7 @@ namespace AzureServiceBusRepository
         subMessage.SessionId = sessionId;
 
         // Send the message
-        _queueClient.Send(subMessage);
+        await _queueClient.SendAsync(subMessage);
         //Console.Write(".");
       }
       //Console.WriteLine("Done!");

@@ -1,6 +1,8 @@
 ﻿using Common.Senders;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DocumentCaptureService.FileProcessors
 {
@@ -48,18 +50,21 @@ namespace DocumentCaptureService.FileProcessors
     {
       if (WorkStopped.WaitOne(0)) return;
 
+      var tasks = new List<Task>();
+
       foreach (var filePath in Directory.EnumerateFiles(SourceDirectory))
       {
         if (WorkStopped.WaitOne(0)) return;
 
         if (TryToOpen(filePath, 3))
         {
-          var fileName = Path.GetFileName(filePath);
-          _fileRepository.SendFile(SourceDirectory, fileName);
+          tasks.Add(_fileRepository.SendFileAsync(filePath));
 
           File.Delete(filePath);
         }
       }
+
+      Task.WaitAll(tasks.ToArray());
     }
 
     protected bool TryToOpen(string filePath, int tryCount)

@@ -5,6 +5,7 @@ using System.Linq;
 using Common.Senders;
 using AzureServiceBusRepository;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Common.Tests
 {
@@ -13,6 +14,8 @@ namespace Common.Tests
   {
     private const string AzureServiceBusConnectionString = "Endpoint=sb://ykupreyeu-mq.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SsdVnoHssUXJvirdr7H7NpHTKB+vCDRtwdVWB40mHQs=";
     private const string QueueName = "testqueue";
+
+    private const string TestPath = @"F:\Dev\epam mentoring d2-d3\mentoring tasks\MentoringUnit6_MessageQueues\Common.Tests\bin\Debug\test\";
 
     [TestMethod]
     public void LargeFileSendReceiveTest()
@@ -23,13 +26,13 @@ namespace Common.Tests
 
       IItemSender<CustomFile> serviceBusMultipleFilesSender = new ServiceBusMultipleFilesSender(AzureServiceBusConnectionString, QueueName);
 
-      serviceBusMultipleFilesSender.SendItem(customFile);
+      serviceBusMultipleFilesSender.SendItemAsync(customFile).Wait();
 
       CustomFile newCustomFile;
 
       using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FileMessage>(AzureServiceBusConnectionString, QueueName))
       {
-        newCustomFile = azureServiceBusRepository.ReceiveItem().CustomFiles[0];
+        newCustomFile = azureServiceBusRepository.ReceiveItemAsync().Result.CustomFiles[0];
       }
 
       Assert.AreEqual(customFile.FileName, newCustomFile.FileName);
@@ -51,13 +54,13 @@ namespace Common.Tests
 
       IItemSender<CustomFile> serviceBusMultipleFilesSender = new ServiceBusMultipleFilesSender(AzureServiceBusConnectionString, QueueName);
 
-      serviceBusMultipleFilesSender.SendItems(customFiles);
+      serviceBusMultipleFilesSender.SendItemsAsync(customFiles).Wait();
 
       CustomFile[] newCustomFiles;
 
       using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FileMessage>(AzureServiceBusConnectionString, QueueName))
       {
-        newCustomFiles = azureServiceBusRepository.ReceiveItem().CustomFiles;
+        newCustomFiles = azureServiceBusRepository.ReceiveItemAsync().Result.CustomFiles;
       }
 
       foreach (var newCustomFile in newCustomFiles)
@@ -79,6 +82,22 @@ namespace Common.Tests
       var customFile = new CustomFile(Guid.NewGuid().ToString() + ".test", fileContent);
 
       return customFile;
+    }
+
+    [TestMethod]
+    public void ReceiveFileTest()
+    {
+      CustomFile[] newCustomFiles;
+
+      using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FileMessage>(AzureServiceBusConnectionString, QueueName))
+      {
+        newCustomFiles = azureServiceBusRepository.ReceiveItemAsync().Result.CustomFiles;
+      }
+
+      foreach (var newCustomFile in newCustomFiles)
+      {
+        File.WriteAllBytes(TestPath + newCustomFile.FileName, newCustomFile.Content);
+      }
     }
   }
 }
