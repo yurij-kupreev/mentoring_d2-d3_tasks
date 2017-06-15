@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Common.Models;
 
 namespace Common.Senders
@@ -27,12 +28,20 @@ namespace Common.Senders
         File.Delete(destinationFilePath);
       }
 
-      File.Move(sourceFilePath, destinationFilePath);
+      File.Copy(sourceFilePath, destinationFilePath);
     }
 
     public override void SendItem(CustomFile file)
     {
       file.Save(_destinationDirectory);
+    }
+
+    public override void SendItems(CustomFile[] files)
+    {
+      foreach (var file in files)
+      {
+        this.SendItem(file);
+      }
     }
   }
 }

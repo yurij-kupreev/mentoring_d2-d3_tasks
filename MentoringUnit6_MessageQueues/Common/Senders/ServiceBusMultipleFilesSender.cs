@@ -6,10 +6,12 @@ namespace Common.Senders
   public class ServiceBusMultipleFilesSender : FileSender
   {
     private readonly string _queueName;
+    private readonly string _connectionString;
 
-    public ServiceBusMultipleFilesSender(string queueName)
+    public ServiceBusMultipleFilesSender(string connectionString, string queueName)
     {
       _queueName = queueName;
+      _connectionString = connectionString;
     }
 
     public override void SendItem(CustomFile file)
@@ -19,22 +21,17 @@ namespace Common.Senders
       this.SendItems(files);
     }
 
-    public void SendItem(CustomFile[] files)
+    public override void SendItems(CustomFile[] files)
     {
-      var filesMessage = new FilesMessage
+      var filesMessage = new FileMessage
       {
         CustomFiles = files
       };
 
-      using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FilesMessage>(_queueName))
+      using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FileMessage>(_connectionString, _queueName))
       {
         azureServiceBusRepository.SendItem(filesMessage);
       }
     }
-  }
-
-  public class FilesMessage
-  {
-    public CustomFile[] CustomFiles;
   }
 }

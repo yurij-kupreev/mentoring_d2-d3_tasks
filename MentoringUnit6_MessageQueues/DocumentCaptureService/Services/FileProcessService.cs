@@ -12,6 +12,9 @@ namespace DocumentCaptureService.Services
     private readonly List<FileSystemWatcher> _watchers;
     private readonly ManualResetEvent _workStopped;
 
+    private const string AzureServiceBusConnectionString = "Endpoint=sb://ykupreyeu-mq.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SsdVnoHssUXJvirdr7H7NpHTKB+vCDRtwdVWB40mHQs=";
+    private const string QueueName = "testqueue";
+
     public FileProcessService(string inDirectory)
     {
       var imagesDirectory = Path.Combine(inDirectory, "images");
@@ -25,7 +28,8 @@ namespace DocumentCaptureService.Services
       _workingThreads = new List<Thread>();
       _watchers = new List<FileSystemWatcher>();
 
-      var fileSender = new LocalStorageSender(outDirectory);
+      //var fileSender = new LocalStorageSender(outDirectory);
+      var fileSender = new ServiceBusMultipleFilesSender(AzureServiceBusConnectionString, QueueName);
       
       var fileProcessor = new FileProcessor(inDirectory, _workStopped, fileSender);
       _workingThreads.Add(fileProcessor.GetThread());

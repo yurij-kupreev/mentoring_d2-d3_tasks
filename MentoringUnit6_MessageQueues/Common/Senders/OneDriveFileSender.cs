@@ -9,5 +9,10 @@ namespace Common.Senders.SingleFileSender
     {
       throw new NotImplementedException();
     }
+
+    public override void SendItems(CustomFile[] files)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

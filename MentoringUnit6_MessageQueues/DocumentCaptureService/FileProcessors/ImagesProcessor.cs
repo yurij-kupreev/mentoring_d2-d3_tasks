@@ -1,5 +1,5 @@
-﻿using Common.Helpers;
-using Common.Senders;
+﻿using Common.Senders;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -8,7 +8,8 @@ namespace DocumentCaptureService.FileProcessors
 {
   public class ImagesProcessor : FileProcessor
   {
-    private readonly PdfHelper _pdfHelper;
+    //private readonly PdfHelper _pdfHelper;
+    private readonly List<string> _imageFilePathSet;
 
     private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
     private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
@@ -16,13 +17,15 @@ namespace DocumentCaptureService.FileProcessors
     public ImagesProcessor(string sourceDirectory, ManualResetEvent workStopped, FileSender fileRepository)
         : base(sourceDirectory, workStopped, fileRepository)
     {
-       _pdfHelper = new PdfHelper();
+      //_pdfHelper = new PdfHelper();
+      _imageFilePathSet = new List<string>();
     }
 
     protected override void WorkProcess()
     {
       var wasEndImage = false;
-      _pdfHelper.CreateNewDocument();
+      //_pdfHelper.CreateNewDocument();
+
       if (WorkStopped.WaitOne(0))
       {
         TrySaveDocument(3);
@@ -39,7 +42,8 @@ namespace DocumentCaptureService.FileProcessors
         if (IsImage(filePath) && TryToOpen(filePath, 3))
         {
           wasEndImage = wasEndImage | IsEndImage(filePath);
-          _pdfHelper.AddImage(filePath);
+          //_pdfHelper.AddImage(filePath);
+          _imageFilePathSet.Add(filePath);
         }
       }
 
@@ -71,14 +75,16 @@ namespace DocumentCaptureService.FileProcessors
       {
         try
         {
-          var customFile = _pdfHelper.SaveDocument();
+          //var customFile = _pdfHelper.SaveDocument();
 
-          if (customFile != null)
-          {
-            _fileRepository.SendItem(customFile);
+          //if (customFile != null)
+          //{
+          //  _fileRepository.SendItem(customFile);
 
-            return;
-          }
+          //  return;
+          //}
+
+          _fileRepository.SendFiles(_imageFilePathSet.ToArray());
         }
         catch (IOException)
         {

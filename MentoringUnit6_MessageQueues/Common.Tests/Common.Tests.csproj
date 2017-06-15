@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EA94038E-5AB3-4CC5-96BD-E68EC9460598}</ProjectGuid>
+    <ProjectGuid>{FD5F8629-2419-4338-9219-B1E9E922E76A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DocumentResultsCollectorService.Tests</RootNamespace>
-    <AssemblyName>DocumentResultsCollectorService.Tests</AssemblyName>
+    <RootNamespace>Common.Tests</RootNamespace>
+    <AssemblyName>Common.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -48,7 +48,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="QueueClient.cs" />
+    <Compile Include="ServiceBusMultipleFilesSenderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -59,13 +59,9 @@
       <Project>{84a4f9d1-d50c-45ca-a52c-e608863f9c2f}</Project>
       <Name>AzureServiceBusRepository</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DocumentCaptureService\DocumentCaptureService.csproj">
-      <Project>{776aca18-a882-4bb3-9dfb-e4c27cc6da1b}</Project>
-      <Name>DocumentCaptureService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DocumentResultsCollectorService\DocumentResultsCollectorService.csproj">
-      <Project>{db6e6679-dd3c-434a-8c39-7ab188832a4e}</Project>
-      <Name>DocumentResultsCollectorService</Name>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{2040b3e0-5acc-4b21-a13f-a1c088c47af0}</Project>
+      <Name>Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

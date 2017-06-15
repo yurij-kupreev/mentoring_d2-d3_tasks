@@ -56,6 +56,8 @@ namespace DocumentCaptureService.FileProcessors
         {
           var fileName = Path.GetFileName(filePath);
           _fileRepository.SendFile(SourceDirectory, fileName);
+
+          File.Delete(filePath);
         }
       }
     }

@@ -18,7 +18,7 @@ namespace AzureServiceBusRepository
 
     public readonly int _messageQueueMessageMaxSizeKBytes;
 
-    public AzureServiceBusLargeItemRepository(string queueName, int messageQueueMessageMaxSizeKBytes = 256) 
+    public AzureServiceBusLargeItemRepository(string queueName, int messageQueueMessageMaxSizeKBytes = 256)
       : this(queueName, AzureServiceBusReceiveMode.PeekLock, messageQueueMessageMaxSizeKBytes)
     {
     }
@@ -56,7 +56,7 @@ namespace AzureServiceBusRepository
       return data;
     }
 
-    public BrokeredMessage Receive()
+    private BrokeredMessage Receive()
     {
       // Create a memory stream to store the large message body.
       var largeMessageStream = new MemoryStream();
@@ -101,7 +101,7 @@ namespace AzureServiceBusRepository
       this.SendLargeItem(new BrokeredMessage(item));
     }
 
-    public void SendLargeItem(BrokeredMessage message)
+    private void SendLargeItem(BrokeredMessage message)
     {
       var subMessageBodySize = (_messageQueueMessageMaxSizeKBytes - MaxMessageHeaderSizeKBytes) * 1024; // max size of chunk (bytes)
 

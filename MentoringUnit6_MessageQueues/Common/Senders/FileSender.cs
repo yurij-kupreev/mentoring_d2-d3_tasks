@@ -1,4 +1,5 @@
 ﻿using Common.Models;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Common.Senders
@@ -16,14 +17,25 @@ namespace Common.Senders
       this.SendItem(file);
     }
 
+    public virtual void SendFiles(string[] filePaths)
+    {
+      var files = new List<CustomFile>();
+
+      foreach (var filePath in filePaths)
+      {
+        var fileBytes = File.ReadAllBytes(filePath);
+        var fileName = Path.GetFileName(filePath);
+
+        var file = new CustomFile(fileName, fileBytes);
+
+        files.Add(file);
+      }
+
+      this.SendItems(files.ToArray());
+    }
+
     public abstract void SendItem(CustomFile file);
 
-    public virtual void SendItems(CustomFile[] files)
-    {
-      foreach(var item in files)
-      {
-        this.SendItem(item);
-      }
-    }
+    public abstract void SendItems(CustomFile[] files);
   }
 }

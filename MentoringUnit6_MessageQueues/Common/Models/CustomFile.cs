@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Common.Models
 {
+  [Serializable]
   public class CustomFile
   {
     public CustomFile(string fileName, byte[] Content)
