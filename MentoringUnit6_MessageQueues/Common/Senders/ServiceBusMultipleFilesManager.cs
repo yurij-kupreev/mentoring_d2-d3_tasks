@@ -1,18 +1,30 @@
 ﻿using System.Threading.Tasks;
 using AzureServiceBusRepository;
 using Common.Models;
+using Common.Getters;
+using System;
 
 namespace Common.Senders
 {
-  public class ServiceBusMultipleFilesSender : FileSender
+  public class ServiceBusMultipleFilesManager : FileSender, IItemGet<FileMessage>
   {
     private readonly string _queueName;
     private readonly string _connectionString;
 
-    public ServiceBusMultipleFilesSender(string connectionString, string queueName)
+    public ServiceBusMultipleFilesManager(string connectionString, string queueName)
     {
       _queueName = queueName;
       _connectionString = connectionString;
+    }
+
+    public async Task<FileMessage> GetItemAsync()
+    {
+      //using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FileMessage>(_connectionString, _queueName))
+      //{
+      //  azureServiceBusRepository.
+      //}
+
+      throw new NotImplementedException();
     }
 
     public override void SendItem(CustomFile file)

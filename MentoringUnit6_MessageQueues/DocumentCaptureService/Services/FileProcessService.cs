@@ -29,7 +29,7 @@ namespace DocumentCaptureService.Services
       _watchers = new List<FileSystemWatcher>();
 
       //var fileSender = new LocalStorageSender(outDirectory);
-      var fileSender = new ServiceBusMultipleFilesSender(AzureServiceBusConnectionString, QueueName);
+      var fileSender = new ServiceBusMultipleFilesManager(AzureServiceBusConnectionString, QueueName);
       
       var fileProcessor = new FileProcessor(inDirectory, _workStopped, fileSender);
       _workingThreads.Add(fileProcessor.GetThread());
@@ -42,6 +42,7 @@ namespace DocumentCaptureService.Services
 
     public void Start()
     {
+      _workStopped.Reset();
       _workingThreads.ForEach(thr => thr.Start());
       _watchers.ForEach(w => w.EnableRaisingEvents = true);
     }

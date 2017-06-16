@@ -2,7 +2,7 @@
 
 namespace Common.Senders
 {
-  public interface IItemSender<T>
+  public interface IItemSender<in T>
   {
     void SendItem(T item);
     void SendItems(T[] items);

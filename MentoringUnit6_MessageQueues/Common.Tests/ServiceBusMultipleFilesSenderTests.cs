@@ -24,7 +24,7 @@ namespace Common.Tests
 
       var customFile = this.GenerateLargeTestFile(contentSize);
 
-      IItemSender<CustomFile> serviceBusMultipleFilesSender = new ServiceBusMultipleFilesSender(AzureServiceBusConnectionString, QueueName);
+      IItemSender<CustomFile> serviceBusMultipleFilesSender = new ServiceBusMultipleFilesManager(AzureServiceBusConnectionString, QueueName);
 
       serviceBusMultipleFilesSender.SendItemAsync(customFile).Wait();
 
@@ -52,7 +52,7 @@ namespace Common.Tests
 
       var customFiles = customFileList.ToArray();
 
-      IItemSender<CustomFile> serviceBusMultipleFilesSender = new ServiceBusMultipleFilesSender(AzureServiceBusConnectionString, QueueName);
+      IItemSender<CustomFile> serviceBusMultipleFilesSender = new ServiceBusMultipleFilesManager(AzureServiceBusConnectionString, QueueName);
 
       serviceBusMultipleFilesSender.SendItemsAsync(customFiles).Wait();
 

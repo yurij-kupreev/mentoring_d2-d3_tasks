@@ -59,13 +59,20 @@ namespace AzureServiceBusRepository
 
     private async Task<BrokeredMessage> ReceiveAsync()
     {
-      // Create a memory stream to store the large message body.
-      var largeMessageStream = new MemoryStream();
-
       // Accept a message session from the queue.
-      var session = _queueClient.AcceptMessageSession();
+      var session = await _queueClient.AcceptMessageSessionAsync();
       //Console.WriteLine("Message session Id: " + session.SessionId);
       //Console.Write("Receiving sub messages");
+
+      var message = await this.ProceedLargeMessageSession(session);
+
+      return message;
+    }
+
+    public async Task<BrokeredMessage> ProceedLargeMessageSession(MessageSession session)
+    {
+      // Create a memory stream to store the large message body.
+      var largeMessageStream = new MemoryStream();
 
       while (true)
       {
@@ -140,6 +147,22 @@ namespace AzureServiceBusRepository
         //Console.Write(".");
       }
       //Console.WriteLine("Done!");
+    }
+  }
+
+  public class MessageSessionHandler : IMessageSessionHandler
+  {
+    public void OnCloseSession(MessageSession session)
+    {
+    }
+
+    public void OnMessage(MessageSession session, BrokeredMessage message)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void OnSessionLost(Exception exception)
+    {
     }
   }
 }
