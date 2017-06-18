@@ -60,7 +60,13 @@ namespace AzureServiceBusRepository
     private async Task<BrokeredMessage> ReceiveAsync()
     {
       // Accept a message session from the queue.
-      var session = await _queueClient.AcceptMessageSessionAsync();
+      var session = await _queueClient.AcceptMessageSessionAsync(TimeSpan.FromSeconds(30));
+
+      if (session == null)
+      {
+        throw new TimeoutException();
+      }
+
       //Console.WriteLine("Message session Id: " + session.SessionId);
       //Console.Write("Receiving sub messages");
 
@@ -147,22 +153,6 @@ namespace AzureServiceBusRepository
         //Console.Write(".");
       }
       //Console.WriteLine("Done!");
-    }
-  }
-
-  public class MessageSessionHandler : IMessageSessionHandler
-  {
-    public void OnCloseSession(MessageSession session)
-    {
-    }
-
-    public void OnMessage(MessageSession session, BrokeredMessage message)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void OnSessionLost(Exception exception)
-    {
     }
   }
 }

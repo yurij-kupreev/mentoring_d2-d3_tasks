@@ -19,12 +19,15 @@ namespace Common.Senders
 
     public async Task<FileMessage> GetItemAsync()
     {
-      //using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FileMessage>(_connectionString, _queueName))
-      //{
-      //  azureServiceBusRepository.
-      //}
+      FileMessage item = null;
 
-      throw new NotImplementedException();
+      using (var azureServiceBusRepository = new AzureServiceBusLargeItemRepository<FileMessage>(_connectionString, _queueName))
+      {
+        item = await azureServiceBusRepository.ReceiveItemAsync();
+      }
+
+      return item;
+      //throw new NotImplementedException();
     }
 
     public override void SendItem(CustomFile file)

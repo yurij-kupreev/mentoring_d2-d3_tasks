@@ -9,21 +9,22 @@ namespace DocumentResultsCollectorService.Processor
 {
   public abstract class ProcessorBase
   {
-    private WaitHandle[] _waitHandle;
+    protected WaitHandle[] _waitHandles;
+    protected List<WaitHandle> _customHandles = new List<WaitHandle>();
 
-    public void SetWaitHandle(ManualResetEvent manualResetEvent, params WaitHandle[] waitHandles)
+    public void SetWaitHandle(ManualResetEvent manualResetEvent)
     {
-      var waitHandle = new List<WaitHandle>();
+      var waitHandles = new List<WaitHandle>();
 
-      waitHandle.Add(manualResetEvent);
-      waitHandle.AddRange(waitHandles);
+      waitHandles.Add(manualResetEvent);
+      waitHandles.AddRange(_customHandles);
 
-      _waitHandle = waitHandle.ToArray();
+      _waitHandles = waitHandles.ToArray();
     }
 
     public Thread GetThread()
     {
-      if (_waitHandle == null || _waitHandle.Length == 0)
+      if (_waitHandles == null || _waitHandles.Length == 0)
       {
         return null;
       }
@@ -37,8 +38,12 @@ namespace DocumentResultsCollectorService.Processor
       {
         WorkProcess();
       }
-      while (WaitHandle.WaitAny(_waitHandle) != 0);
+      while (WaitHandle.WaitAny(_waitHandles) != 0);
+
+      this.OnStopping();
     }
+
+    public abstract void OnStopping();
 
     public abstract void WorkProcess();
   }
