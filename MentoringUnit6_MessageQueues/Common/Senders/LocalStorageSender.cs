@@ -53,9 +53,12 @@ namespace Common.Senders
       }
     }
 
-    public override Task SendItemsAsync(CustomFile[] items)
+    public override async Task SendItemsAsync(CustomFile[] files)
     {
-      throw new NotImplementedException();
+      foreach (var file in files)
+      {
+        await this.SendItemAsync(file);
+      }
     }
   }
 }
