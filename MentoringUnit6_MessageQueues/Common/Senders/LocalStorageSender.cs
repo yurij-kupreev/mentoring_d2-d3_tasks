@@ -40,9 +40,9 @@ namespace Common.Senders
       file.Save(_destinationDirectory);
     }
 
-    public override Task SendItemAsync(CustomFile items)
+    public override async Task SendItemAsync(CustomFile item)
     {
-      throw new NotImplementedException();
+      await Task.Factory.StartNew(() => item.Save(_destinationDirectory));
     }
 
     public override void SendItems(CustomFile[] files)

@@ -86,6 +86,8 @@ namespace DocumentCaptureService.FileProcessors
           //}
 
           _fileRepository.SendFilesAsync(_imageFilePathSet.ToArray()).Wait();
+          _imageFilePathSet.Clear();
+          return;
         }
         catch (IOException)
         {

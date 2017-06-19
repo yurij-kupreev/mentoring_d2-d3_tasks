@@ -15,13 +15,15 @@ namespace DocumentResultsCollectorService.Processor
     private IItemGet<FileMessage> _itemGetter;
     private FileSender _fileSender;
 
-    private List<Task> _tasks;
+    private List<Task> _tasks = new List<Task>();
 
     public ResultsCollectorProcessor(IItemGet<FileMessage> itemGetter, FileSender fileSender)
     {
       _itemGetter = itemGetter;
+      _fileSender = fileSender;
 
-      this._customHandles.Add(new AutoResetEvent(false));
+      _resetEvent = new AutoResetEvent(false);
+      this._customHandles.Add(_resetEvent);
     }
 
     public override void WorkProcess()
@@ -29,6 +31,7 @@ namespace DocumentResultsCollectorService.Processor
       try
       {
         var item = _itemGetter.GetItemAsync().Result;
+        _resetEvent.Set();
         _tasks.Add(this.Proceed(item));
       }
       catch (TimeoutException e)
@@ -42,7 +45,10 @@ namespace DocumentResultsCollectorService.Processor
       switch (fileMessage.FilesMessageType)
       {
         case FileMessageType.File:
-          await this.ProceedFile(fileMessage.CustomFiles[0]);
+          foreach (var file in fileMessage.CustomFiles)
+          {
+            await this.ProceedFile(file);
+          }
           break;
         case FileMessageType.ImageSet:
           await this.ProceedImageSet(fileMessage.CustomFiles);

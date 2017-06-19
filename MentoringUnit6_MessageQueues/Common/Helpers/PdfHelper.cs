@@ -5,6 +5,7 @@ using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.Rendering;
 using Common.Models;
+using System.Diagnostics;
 
 namespace Common.Helpers
 {
@@ -28,18 +29,39 @@ namespace Common.Helpers
 
     public void AddImage(byte[] imageArr, bool isLast = false)
     {
-      var fileNameBase64 = MigraDocFilenameFromByteArray(imageArr);
+      //var fileNameBase64 = MigraDocFilenameFromByteArray(imageArr);
 
-      var image = new Image(fileNameBase64);
+      var filePath = this.ProceedImage(imageArr);
+
+      var image = _currentSection.AddImage(filePath);
 
       this.ProceedImage(image);
 
-      if (isLast)
+      if (isLast == false)
       {
         _currentSection.AddPageBreak();
       }
 
-      Images.Add(fileNameBase64);
+      Images.Add(filePath);
+    }
+
+    public string ProceedImage(byte[] imageArr)
+    {
+      var currentDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+      var tempDir = Path.Combine(currentDir, "temp");
+
+      if (!Directory.Exists(tempDir))
+      {
+        Directory.CreateDirectory(tempDir);
+      }
+
+      var name = Guid.NewGuid().ToString();
+
+      var filePath = Path.Combine(tempDir, name);
+
+      File.WriteAllBytes(filePath, imageArr);
+
+      return filePath;
     }
 
     private void ProceedImage(Image img)

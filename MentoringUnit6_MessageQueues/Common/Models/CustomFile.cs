@@ -19,6 +19,11 @@ namespace Common.Models
     {
       var destinationFilePath = Path.Combine(destinationDirectory, this.FileName);
 
+      if (!Directory.Exists(destinationDirectory))
+      {
+        Directory.CreateDirectory(destinationDirectory);
+      }
+
       File.WriteAllBytes(destinationFilePath, this.Content);
     }
   }
