@@ -50,7 +50,7 @@ namespace DocumentResultsCollectorService
             hostConf.Service<ServiceBase>(
                       s =>
                       {
-                        s.ConstructUsing(() => new CentralService(resultsCollectorProcessor));
+                        s.ConstructUsing(() => new ServiceBase(resultsCollectorProcessor));
                         s.WhenStarted(serv => serv.Start());
                         s.WhenStopped(serv => serv.Stop());
                       }).UseNLog(logFactory);

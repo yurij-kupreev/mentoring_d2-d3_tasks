@@ -8,10 +8,18 @@ using System.Threading.Tasks;
 
 namespace DocumentResultsCollectorService.Services
 {
-  public abstract class ServiceBase
+  public class ServiceBase
   {
     protected readonly List<Thread> _workingThreads = new List<Thread>();
     protected readonly ManualResetEvent _workStopped = new ManualResetEvent(false);
+
+    public ServiceBase(params ProcessorBase[] processors)
+    {
+      foreach (var processor in processors)
+      {
+        this.AddProcessor(processor);
+      }
+    }
 
     public ServiceBase AddProcessor(ProcessorBase processor)
     {
