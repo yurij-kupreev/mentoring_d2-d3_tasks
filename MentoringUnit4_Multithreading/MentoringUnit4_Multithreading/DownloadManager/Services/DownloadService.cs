@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +21,10 @@ namespace DownloadManager.Services
         catch (TaskCanceledException)
         {
           html = "Downloading has been cancelled.";
+        }
+        catch (Exception e)
+        {
+          html = e.ToString();
         }
 
         return html;
