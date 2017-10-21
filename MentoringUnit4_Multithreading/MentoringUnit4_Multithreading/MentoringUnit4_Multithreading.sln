@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainZoneCollector", "Doma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainZoneCollector.Tests", "DomainZoneCollector.Tests\DomainZoneCollector.Tests.csproj", "{5B5B23D0-781E-405C-B024-7CDD496CCA7B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadManager", "DownloadManager\DownloadManager.csproj", "{A7A0DED0-A14A-4FA6-886A-112DFF212A67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{5B5B23D0-781E-405C-B024-7CDD496CCA7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B5B23D0-781E-405C-B024-7CDD496CCA7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B5B23D0-781E-405C-B024-7CDD496CCA7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7A0DED0-A14A-4FA6-886A-112DFF212A67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7A0DED0-A14A-4FA6-886A-112DFF212A67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7A0DED0-A14A-4FA6-886A-112DFF212A67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7A0DED0-A14A-4FA6-886A-112DFF212A67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
