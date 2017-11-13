@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -6,9 +7,9 @@ using System.Threading;
 using MentoringUnit4_WindowsServices.Helpers;
 using MentoringUnit4_WindowsServices.Repositories;
 
-namespace MentoringUnit4_WindowsServices.FileProcessors
+namespace MentoringUnit4_WindowsServices.RepeatableProcessors
 {
-  public class ImagesConversionAndMoveProcessor : FileProcessor
+  public class ImagesConversionAndMoveRepeatableProcessor : FileRepeatableProcessor
   {
     private readonly PdfHelper _pdfHelper;
 
@@ -17,43 +18,32 @@ namespace MentoringUnit4_WindowsServices.FileProcessors
 
     private readonly IFileRepository _fileRepository;
 
-    public ImagesConversionAndMoveProcessor(string sourceDirectory, WaitHandle workStopped, IFileRepository fileRepository)
+    public ImagesConversionAndMoveRepeatableProcessor(string sourceDirectory, WaitHandle workStopped, IFileRepository fileRepository)
         : base(sourceDirectory, workStopped)
     {
       _fileRepository = fileRepository;
       _pdfHelper = new PdfHelper();
     }
 
-    protected override void WorkProcess()
+    public override void RepeatableProcess()
     {
       var wasEndImage = false;
-      _pdfHelper.CreateNewDocument();
-      if (WorkStopped.WaitOne(0))
-      {
-        TrySaveDocument(3);
-        return;
-      }
-      foreach (var filePath in Directory.EnumerateFiles(SourceDirectory))
-      {
-        if (WorkStopped.WaitOne(0))
-        {
-          if (wasEndImage) TrySaveDocument(3);
+      var imagePaths = new List<string>();
+
+      foreach (var filePath in Directory.EnumerateFiles(SourceDirectory)) {
+        if (WorkStopped.WaitOne(0)) {
+          if (wasEndImage) TrySaveDocument(3, imagePaths);
           return;
         }
 
-        if (IsImage(filePath) && TryToOpen(filePath, 3))
-        {
+        if (IsImage(filePath) && TryToOpen(filePath, 3)) {
           wasEndImage = wasEndImage | IsEndImage(filePath);
-          _pdfHelper.AddImage(filePath);
+          imagePaths.Add(filePath);
         }
       }
 
-      if (wasEndImage)
-      {
-        var imageFileNames = string.Join(", ", Directory.EnumerateFiles(SourceDirectory).Select(Path.GetFileName));
-        Logger.Info($"Start image conversion to pdf file: {imageFileNames}");
-        TrySaveDocument(3);
-        Logger.Info("Ended image conversion to pdf file and saving.");
+      if (wasEndImage) {
+        TrySaveDocument(3, imagePaths);
       }
     }
 
@@ -73,24 +63,24 @@ namespace MentoringUnit4_WindowsServices.FileProcessors
       return regex.IsMatch(fileName);
     }
 
-    public void TrySaveDocument(int tryCount)
+    private void TrySaveDocument(int tryCount, IEnumerable<string> imagePaths)
     {
-      for (var i = 0; i < tryCount; i++)
-      {
-        try
-        {
-          var contentStream = _pdfHelper.SaveDocument();
+      var imageFileNames = string.Join(", ", Directory.EnumerateFiles(SourceDirectory).Select(Path.GetFileName));
+      Logger.Info($"Start image conversion to pdf file: {imageFileNames}");
+      for (var i = 0; i < tryCount; i++) {
+        try {
+          var contentStream = _pdfHelper.RenderDocumentStream(imagePaths);
           var pdfFileName = $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf";
 
           _fileRepository.SaveFile(pdfFileName, contentStream);
 
+          Logger.Info("Ended image conversion to pdf file and saving.");
           return;
-        }
-        catch (IOException)
-        {
+        } catch (IOException) {
           Thread.Sleep(5000);
         }
       }
+
     }
 
     private bool TryToOpen(string filePath, int tryCount)

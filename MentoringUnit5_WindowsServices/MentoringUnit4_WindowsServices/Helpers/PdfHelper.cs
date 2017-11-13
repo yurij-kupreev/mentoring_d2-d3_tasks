@@ -8,45 +8,26 @@ namespace MentoringUnit4_WindowsServices.Helpers
 {
   public class PdfHelper
   {
-    private Document _currentDocument;
-    private Section _currentSection;
-
-    public List<string> Images { get; private set; }
-
-    public void AddImage(string filePath)
+    public Stream RenderDocumentStream(IEnumerable<string> imagePaths)
     {
-      var img = _currentSection.AddImage(filePath);
+      var document = new Document();
+      var section = document.AddSection();
 
-      this.ProceedImage(img);
+      foreach (var imagePath in imagePaths) {
+        var img = section.AddImage(imagePath);
 
-      _currentSection.AddPageBreak();
+        this.ProceedImage(img, document);
+        section.AddPageBreak();
+      }
 
-      Images.Add(filePath);
-    }
+      if (section.Elements.Count > 1) {
+        section.Elements.RemoveObjectAt(section.Elements.Count - 1);
 
-    private void ProceedImage(Image img)
-    {
-      img.RelativeHorizontal = RelativeHorizontal.Page;
-      img.RelativeVertical = RelativeVertical.Page;
-
-      img.Top = 0;
-      img.Left = 0;
-
-      img.Height = _currentDocument.DefaultPageSetup.PageHeight;
-      img.Width = _currentDocument.DefaultPageSetup.PageWidth;
-    }
-
-    public Stream SaveDocument()
-    {
-      if (_currentDocument != null && Images.Count > 0) {
-        var render = new PdfDocumentRenderer();
-        render.Document = _currentDocument;
+        var render = new PdfDocumentRenderer { Document = document };
         render.RenderDocument();
 
         var stream = new MemoryStream();
         render.Save(stream, false);
-
-        _currentDocument = null;
 
         return stream;
       }
@@ -54,11 +35,16 @@ namespace MentoringUnit4_WindowsServices.Helpers
       return null;
     }
 
-    public void CreateNewDocument()
+    private void ProceedImage(Shape img, Document document)
     {
-      _currentDocument = new Document();
-      _currentSection = _currentDocument.AddSection();
-      Images = new List<string>();
+      img.RelativeHorizontal = RelativeHorizontal.Page;
+      img.RelativeVertical = RelativeVertical.Page;
+
+      img.Top = 0;
+      img.Left = 0;
+
+      img.Height = document.DefaultPageSetup.PageHeight;
+      img.Width = document.DefaultPageSetup.PageWidth;
     }
   }
 }

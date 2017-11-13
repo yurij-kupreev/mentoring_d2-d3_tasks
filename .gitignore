@@ -5,3 +5,4 @@ TestResults/
 *.suo
 *.csproj.user
 .vs/
+*.user

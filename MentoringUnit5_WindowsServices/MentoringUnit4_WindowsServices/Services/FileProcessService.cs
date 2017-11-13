@@ -2,8 +2,9 @@
 using System.Configuration;
 using System.IO;
 using System.Threading;
-using MentoringUnit4_WindowsServices.FileProcessors;
+using MentoringUnit4_WindowsServices.RepeatableProcessors;
 using MentoringUnit4_WindowsServices.Repositories;
+using MentoringUnit4_WindowsServices.ServiceWorkers;
 
 namespace MentoringUnit4_WindowsServices.Services
 {
@@ -49,21 +50,23 @@ namespace MentoringUnit4_WindowsServices.Services
       var outputDirectory = ConfigurationManager.AppSettings[FilesOutputDirectoryKey];
       var fileRepository = new LocalStorageRepository(outputDirectory);
 
-      var fileProcessor = new SingleFileMoveProcessor(inputDirectory, _workStopped, fileRepository);
-      _workingThreads.Add(fileProcessor.GetThread());
-      _watchers.Add(fileProcessor.Watcher);
+      var singleFileMoveRepeatableProcessor = new SingleFileMoveRepeatableProcessor(inputDirectory, _workStopped, fileRepository);
+      var fileServiceProcessor = new ServiceProcessor(singleFileMoveRepeatableProcessor);
+      _workingThreads.Add(fileServiceProcessor.GetThread());
+      _watchers.Add(singleFileMoveRepeatableProcessor.Watcher);
     }
 
     private void InitImageProcessor()
     {
       var imagesDirectory = ConfigurationManager.AppSettings[ImagesInputDirectoryKey];
 
-      var outputDirectory = ConfigurationManager.AppSettings[FilesOutputDirectoryKey];  
-      var imagesRepository = new LocalStorageRepository(outputDirectory);
+      var inputDirectory = ConfigurationManager.AppSettings[FilesInputDirectoryKey];  
+      var imagesRepository = new LocalStorageRepository(inputDirectory);
 
-      var imageProcessor = new ImagesConversionAndMoveProcessor(imagesDirectory, _workStopped, imagesRepository);
-      _workingThreads.Add(imageProcessor.GetThread());
-      _watchers.Add(imageProcessor.Watcher);
+      var imagesConversionAndMoveRepeatableProcessor = new ImagesConversionAndMoveRepeatableProcessor(imagesDirectory, _workStopped, imagesRepository);
+      var imageServiceProcessor = new ServiceProcessor(imagesConversionAndMoveRepeatableProcessor);
+      _workingThreads.Add(imageServiceProcessor.GetThread());
+      _watchers.Add(imagesConversionAndMoveRepeatableProcessor.Watcher);
     }
   }
 }

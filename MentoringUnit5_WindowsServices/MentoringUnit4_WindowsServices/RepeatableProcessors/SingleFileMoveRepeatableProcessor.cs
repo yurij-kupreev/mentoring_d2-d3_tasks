@@ -2,20 +2,22 @@
 using System.Threading;
 using MentoringUnit4_WindowsServices.Repositories;
 
-namespace MentoringUnit4_WindowsServices.FileProcessors
+namespace MentoringUnit4_WindowsServices.RepeatableProcessors
 {
-  public class SingleFileMoveProcessor : FileProcessor
+  public class SingleFileMoveRepeatableProcessor : FileRepeatableProcessor
   {
     private readonly IFileRepository _fileRepository;
 
-    public SingleFileMoveProcessor(string directory, WaitHandle workStopped, IFileRepository fileRepository)
+    public SingleFileMoveRepeatableProcessor(string directory, WaitHandle workStopped, IFileRepository fileRepository)
       : base(directory, workStopped)
     {
       _fileRepository = fileRepository;
     }
 
-    protected override void WorkProcess()
+    public override void RepeatableProcess()
     {
+      if (WorkStopped.WaitOne(0)) return;
+
       foreach (var filePath in Directory.EnumerateFiles(SourceDirectory)) {
         Logger.Info($"Start processing file: {filePath}");
 

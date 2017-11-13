@@ -1,31 +1,34 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using NLog;
 
-namespace MentoringUnit4_WindowsServices.FileProcessors
+namespace MentoringUnit4_WindowsServices.RepeatableProcessors
 {
-  public abstract class FileProcessor : ServiceProcessor
+  public abstract class FileRepeatableProcessor : IRepeatableProcessor
   {
-    protected static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    public WaitHandle WorkStopped { get; set; }
+
     public FileSystemWatcher Watcher { get; }
 
+    protected static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     protected string SourceDirectory;
-    protected WaitHandle WorkStopped;
-    protected AutoResetEvent NewFileAdded;
+    private readonly AutoResetEvent _newFileAdded;
 
-    protected FileProcessor(string directory, WaitHandle workStopped): base(workStopped)
+    protected FileRepeatableProcessor(string directory, WaitHandle workStopped)
     {
       WorkStopped = workStopped;
 
       SourceDirectory = directory;
       CreateIfNotExist(SourceDirectory);
 
-      NewFileAdded = new AutoResetEvent(false);
-      base.AddWaitHandles(NewFileAdded);
+      _newFileAdded = new AutoResetEvent(false);
 
       Watcher = new FileSystemWatcher(SourceDirectory);
       Watcher.Created += On_Created;
     }
+
+    public abstract void RepeatableProcess();
 
     protected void CreateIfNotExist(string path)
     {
@@ -38,7 +41,12 @@ namespace MentoringUnit4_WindowsServices.FileProcessors
     private void On_Created(object sender, FileSystemEventArgs e)
     {
       Logger.Info($"Create event has been raised. Name: {e.Name}, Path: {e.FullPath}, Event type: {e.ChangeType}");
-      NewFileAdded.Set();
+      _newFileAdded.Set();
+    }
+
+    public IEnumerable<WaitHandle> GetNonStoppedWaitHandles()
+    {
+      return new List<WaitHandle> { _newFileAdded };
     }
   }
 }

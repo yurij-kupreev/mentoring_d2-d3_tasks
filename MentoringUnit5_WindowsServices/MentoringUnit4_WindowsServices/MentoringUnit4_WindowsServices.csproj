@@ -68,11 +68,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileProcessors\FileProcessor.cs" />
-    <Compile Include="FileProcessors\SingleFileMoveProcessor.cs" />
-    <Compile Include="FileProcessors\ServiceProcessor.cs" />
+    <Compile Include="RepeatableProcessors\FileRepeatableProcessor.cs" />
+    <Compile Include="RepeatableProcessors\IRepeatableProcessor.cs" />
+    <Compile Include="RepeatableProcessors\SingleFileMoveRepeatableProcessor.cs" />
+    <Compile Include="ServiceWorkers\ServiceWorker.cs" />
     <Compile Include="Services\FileProcessService.cs" />
-    <Compile Include="FileProcessors\ImagesConversionAndMoveProcessor.cs" />
+    <Compile Include="RepeatableProcessors\ImagesConversionAndMoveRepeatableProcessor.cs" />
     <Compile Include="Helpers\PdfHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
