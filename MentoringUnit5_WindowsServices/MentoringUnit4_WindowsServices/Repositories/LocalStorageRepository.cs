@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 
 namespace MentoringUnit4_WindowsServices.Repositories
 {
@@ -11,22 +12,33 @@ namespace MentoringUnit4_WindowsServices.Repositories
       _destinationDirectory = destinationDirectory;
     }
 
-    public void MoveFile(string sourceDirectory, string fileName)
+    public void SaveFile(string fileName, Stream contentStream)
     {
-      if (!Directory.Exists(_destinationDirectory))
-      {
+      var destinationFilePath = this.PrepareFileDestination(fileName);
+
+      using (var fileStream = new FileStream(destinationFilePath, FileMode.Create, FileAccess.Write)) {
+        contentStream.CopyTo(fileStream);
+      }
+    }
+
+    public async Task SaveFileAsync(string fileName, Stream contentStream)
+    {
+      var destinationFilePath = this.PrepareFileDestination(fileName);
+
+      using (var fileStream = new FileStream(destinationFilePath, FileMode.Create, FileAccess.Write)) {
+        await contentStream.CopyToAsync(fileStream);
+      }
+    }
+
+    private string PrepareFileDestination(string fileName)
+    {
+      if (!Directory.Exists(_destinationDirectory)) {
         Directory.CreateDirectory(_destinationDirectory);
       }
 
       var destinationFilePath = Path.Combine(_destinationDirectory, fileName);
-      var sourceFilePath = Path.Combine(sourceDirectory, fileName);
 
-      if (File.Exists(destinationFilePath))
-      {
-        File.Delete(destinationFilePath);
-      }
-
-      File.Move(sourceFilePath, destinationFilePath);
+      return destinationFilePath;
     }
   }
 }

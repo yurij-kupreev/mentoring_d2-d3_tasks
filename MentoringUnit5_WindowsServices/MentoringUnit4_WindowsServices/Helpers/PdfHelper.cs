@@ -1,29 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.Rendering;
 
-namespace MentoringUnit4_WindowsServices
+namespace MentoringUnit4_WindowsServices.Helpers
 {
   public class PdfHelper
   {
     private Document _currentDocument;
     private Section _currentSection;
 
-    private readonly string _pdfTempDirectory;
-
     public List<string> Images { get; private set; }
-
-    public PdfHelper(string pdfTempDirectory)
-    {
-      _pdfTempDirectory = pdfTempDirectory;
-    }
 
     public void AddImage(string filePath)
     {
       var img = _currentSection.AddImage(filePath);
+
+      this.ProceedImage(img);
+
+      _currentSection.AddPageBreak();
+
+      Images.Add(filePath);
+    }
+
+    private void ProceedImage(Image img)
+    {
       img.RelativeHorizontal = RelativeHorizontal.Page;
       img.RelativeVertical = RelativeVertical.Page;
 
@@ -32,29 +34,24 @@ namespace MentoringUnit4_WindowsServices
 
       img.Height = _currentDocument.DefaultPageSetup.PageHeight;
       img.Width = _currentDocument.DefaultPageSetup.PageWidth;
-
-      _currentSection.AddPageBreak();
-
-      Images.Add(filePath);
     }
 
-    public string SaveDocument()
+    public Stream SaveDocument()
     {
-      if (_currentDocument != null && Images.Count > 0)
-      {
+      if (_currentDocument != null && Images.Count > 0) {
         var render = new PdfDocumentRenderer();
         render.Document = _currentDocument;
         render.RenderDocument();
 
-        var pdfFilePath = Path.Combine(_pdfTempDirectory, $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf");
+        var stream = new MemoryStream();
+        render.Save(stream, false);
 
-        render.Save(pdfFilePath);
         _currentDocument = null;
 
-        return pdfFilePath;
+        return stream;
       }
 
-      return string.Empty;
+      return null;
     }
 
     public void CreateNewDocument()

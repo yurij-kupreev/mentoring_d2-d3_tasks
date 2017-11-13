@@ -1,23 +1,27 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using MentoringUnit4_WindowsServices.Helpers;
 using MentoringUnit4_WindowsServices.Repositories;
 
 namespace MentoringUnit4_WindowsServices.FileProcessors
 {
-  public class ImagesProcessor : FileProcessor
+  public class ImagesConversionAndMoveProcessor : FileProcessor
   {
     private readonly PdfHelper _pdfHelper;
 
     private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
     private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
 
-    public ImagesProcessor(string sourceDirectory, ManualResetEvent workStopped, IFileRepository fileRepository, string pdfTempDirectory)
-        : base(sourceDirectory, workStopped, fileRepository)
-    {
-       this.CreateIfNotExist(pdfTempDirectory);
+    private readonly IFileRepository _fileRepository;
 
-       _pdfHelper = new PdfHelper(pdfTempDirectory);
+    public ImagesConversionAndMoveProcessor(string sourceDirectory, WaitHandle workStopped, IFileRepository fileRepository)
+        : base(sourceDirectory, workStopped)
+    {
+      _fileRepository = fileRepository;
+      _pdfHelper = new PdfHelper();
     }
 
     protected override void WorkProcess()
@@ -46,7 +50,10 @@ namespace MentoringUnit4_WindowsServices.FileProcessors
 
       if (wasEndImage)
       {
+        var imageFileNames = string.Join(", ", Directory.EnumerateFiles(SourceDirectory).Select(Path.GetFileName));
+        Logger.Info($"Start image conversion to pdf file: {imageFileNames}");
         TrySaveDocument(3);
+        Logger.Info("Ended image conversion to pdf file and saving.");
       }
     }
 
@@ -72,23 +79,34 @@ namespace MentoringUnit4_WindowsServices.FileProcessors
       {
         try
         {
-          var filePath = _pdfHelper.SaveDocument();
+          var contentStream = _pdfHelper.SaveDocument();
+          var pdfFileName = $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf";
 
-          if (string.IsNullOrEmpty(filePath) == false)
-          {
-            var sourceDirectory = Path.GetDirectoryName(filePath);
-            var fileName = Path.GetFileName(filePath);
+          _fileRepository.SaveFile(pdfFileName, contentStream);
 
-            FileRepository.MoveFile(sourceDirectory, fileName);
-
-            return;
-          }
+          return;
         }
         catch (IOException)
         {
           Thread.Sleep(5000);
         }
       }
+    }
+
+    private bool TryToOpen(string filePath, int tryCount)
+    {
+      for (var i = 0; i < tryCount; i++) {
+        try {
+          var file = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None);
+          file.Close();
+
+          return true;
+        } catch (IOException) {
+          Thread.Sleep(5000);
+        }
+      }
+
+      return false;
     }
   }
 }
