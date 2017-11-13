@@ -16,7 +16,11 @@ namespace MentoringUnit4_WindowsServices.Services
 
     private const string FilesInputDirectoryKey = "FilesInputDirectory";
     private const string ImagesInputDirectoryKey = "ImagesInputDirectory";
-    private const string FilesOutputDirectoryKey = "FilesOutputDirectory";
+    //private const string FilesOutputDirectoryKey = "FilesOutputDirectory";
+
+    private const string BlobContainerNameKey = "BlobContainerName";
+    private const string BlobFolderNameKey = "BlobFolderName";
+    private const string AzureStorageConnectionStringKey = "AzureStorageConnectionString";
 
     public FileProcessService()
     {
@@ -47,10 +51,16 @@ namespace MentoringUnit4_WindowsServices.Services
     {
       var inputDirectory = ConfigurationManager.AppSettings[FilesInputDirectoryKey];
 
-      var outputDirectory = ConfigurationManager.AppSettings[FilesOutputDirectoryKey];
-      var fileRepository = new LocalStorageRepository(outputDirectory);
+      //var outputDirectory = ConfigurationManager.AppSettings[FilesOutputDirectoryKey];
+      //var fileRepository = new LocalStorageRepository(outputDirectory);
 
-      var singleFileMoveRepeatableProcessor = new SingleFileMoveRepeatableProcessor(inputDirectory, _workStopped, fileRepository);
+      var blobContainerName = ConfigurationManager.AppSettings[BlobContainerNameKey];
+      var blobFolderName = ConfigurationManager.AppSettings[BlobFolderNameKey];
+      var azureStorageConnectionString = ConfigurationManager.AppSettings[AzureStorageConnectionStringKey];
+
+      var blobStorageRepository = new BlobStorageRepository(blobContainerName, azureStorageConnectionString, blobFolderName);
+
+      var singleFileMoveRepeatableProcessor = new SingleFileMoveRepeatableProcessor(inputDirectory, _workStopped, blobStorageRepository);
       var fileServiceProcessor = new ServiceProcessor(singleFileMoveRepeatableProcessor);
       _workingThreads.Add(fileServiceProcessor.GetThread());
       _watchers.Add(singleFileMoveRepeatableProcessor.Watcher);

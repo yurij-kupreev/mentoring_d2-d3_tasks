@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using MentoringUnit4_WindowsServices.Repositories;
 
 namespace MentoringUnit4_WindowsServices.RepeatableProcessors
@@ -16,23 +18,32 @@ namespace MentoringUnit4_WindowsServices.RepeatableProcessors
 
     public override void RepeatableProcess()
     {
-      if (WorkStopped.WaitOne(0)) return;
+      var tasks = new List<Task>();
 
       foreach (var filePath in Directory.EnumerateFiles(SourceDirectory)) {
-        Logger.Info($"Start processing file: {filePath}");
+        if (WorkStopped.WaitOne(0)) break;
 
-        TryToMove(filePath, 3);
-
-        Logger.Info($"Ended processing file: {filePath}");
+        tasks.Add(this.ProcessFile(filePath));
       }
+
+      Task.WaitAll(tasks.ToArray());
     }
 
-    private void TryToMove(string filePath, int tryCount)
+    private async Task ProcessFile(string filePath)
+    {
+      Logger.Info($"Start processing file: {filePath}");
+
+      await TryToMoveAsync(filePath, 3);
+
+      Logger.Info($"Ended processing file: {filePath}");
+    }
+
+    private async Task TryToMoveAsync(string filePath, int tryCount)
     {
       for (var i = 0; i < tryCount; i++) {
         try {
           using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
-            _fileRepository.SaveFile(Path.GetFileName(filePath), fileStream);
+            await _fileRepository.SaveFileAsync(Path.GetFileName(filePath), fileStream);
           }
 
           File.Delete(filePath);
