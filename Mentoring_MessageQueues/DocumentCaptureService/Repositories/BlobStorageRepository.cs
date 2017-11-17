@@ -1,11 +1,13 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace DocumentCaptureService.Repositories
 {
-  public class BlobStorageRepository: IFileRepository
+  public class BlobStorageRepository: IObjectRepository
   {
     private readonly string _folderPath;
     private readonly CloudBlobContainer _container;
@@ -24,9 +26,9 @@ namespace DocumentCaptureService.Repositories
       _container.CreateIfNotExists();
     }
 
-    public void SaveFile(string fileName, Stream contentStream)
+    public void SaveObject(string objectName, Stream contentStream)
     {
-      var blobStreamPath = GetBlobPath(fileName);
+      var blobStreamPath = GetBlobPath(objectName);
       var blobToStream = GetBlobForStreaming(blobStreamPath);
       var cloudBlobStream = blobToStream.OpenWrite();
 
@@ -36,11 +38,11 @@ namespace DocumentCaptureService.Repositories
       }
     }
 
-    public async Task SaveFileAsync(string fileName, Stream contentStream)
+    public async Task SaveObjectAsync(string objectName, Stream contentStream)
     {
-      var blobStreamPath = GetBlobPath(fileName);
+      var blobStreamPath = GetBlobPath(objectName);
       var blobToStream = GetBlobForStreaming(blobStreamPath);
-      var cloudBlobStream = blobToStream.OpenWrite();
+      var cloudBlobStream = await blobToStream.OpenWriteAsync();
 
       using (cloudBlobStream) {
         await contentStream.CopyToAsync(cloudBlobStream);
@@ -62,6 +64,43 @@ namespace DocumentCaptureService.Repositories
       blobToStream.StreamMinimumReadSizeInBytes = 16384;
 
       return blobToStream;
+    }
+
+    public Stream OpenObjectStream(string objectName)
+    {
+      var blobStreamPath = GetBlobPath(objectName);
+      var blobToStream = GetBlobForStreaming(blobStreamPath);
+      return blobToStream.OpenRead();
+    }
+
+    public IEnumerable<string> EnumerateObjects()
+    {
+      var directory = _container.GetDirectoryReference(_folderPath);
+      var blobs = directory.ListBlobs();
+
+      var filePathes = blobs.OfType<CloudBlob>().Select(b => b.Name);
+
+      var fileNames = filePathes.Select(this.GetFileName).ToList();
+
+      return fileNames;
+    }
+
+    private string GetFileName(string filePath)
+    {
+      var folderPathCharactersNumber = (_folderPath + "\\").Length;
+
+      if (filePath == null || folderPathCharactersNumber > filePath.Length) {
+        return string.Empty;
+      }
+
+      var fileName = filePath.Substring(folderPathCharactersNumber);
+
+      return fileName;
+    }
+
+    public void DeleteObject(string objectName)
+    {
+      throw new System.NotImplementedException();
     }
   }
 }

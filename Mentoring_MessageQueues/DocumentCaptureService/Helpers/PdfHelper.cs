@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using DocumentCaptureService.Repositories;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.Rendering;
@@ -8,12 +10,17 @@ namespace DocumentCaptureService.Helpers
 {
   public class PdfHelper
   {
-    public Stream RenderDocumentStream(IEnumerable<string> imagePaths)
+    private readonly LocalStorageRepository _localStorageRepository = new LocalStorageRepository(@".\temp");
+
+    public Stream RenderImageDocumentStream(IEnumerable<Stream> objectStreams)
     {
       var document = new Document();
       var section = document.AddSection();
 
-      foreach (var imagePath in imagePaths) {
+      foreach (var objectStream in objectStreams)
+      {
+        var imagePath = this.GetPath(objectStream);
+
         var img = section.AddImage(imagePath);
 
         this.ProceedImage(img, document);
@@ -45,6 +52,15 @@ namespace DocumentCaptureService.Helpers
 
       img.Height = document.DefaultPageSetup.PageHeight;
       img.Width = document.DefaultPageSetup.PageWidth;
+    }
+
+    private string GetPath(Stream objectStream)
+    {
+      var objectName = Guid.NewGuid().ToString();
+
+      _localStorageRepository.SaveObject(objectName, objectStream);
+
+      return _localStorageRepository.GetObjectPath(objectName);
     }
   }
 }

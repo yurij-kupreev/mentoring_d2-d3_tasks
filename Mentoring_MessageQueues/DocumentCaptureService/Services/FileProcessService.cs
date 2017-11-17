@@ -5,6 +5,7 @@ using System.Threading;
 using DocumentCaptureService.RepeatableProcessors;
 using DocumentCaptureService.Repositories;
 using DocumentCaptureService.ServiceWorkers;
+using NLog;
 
 namespace DocumentCaptureService.Services
 {
@@ -16,11 +17,13 @@ namespace DocumentCaptureService.Services
 
     private const string FilesInputDirectoryKey = "FilesInputDirectory";
     private const string ImagesInputDirectoryKey = "ImagesInputDirectory";
-    //private const string FilesOutputDirectoryKey = "FilesOutputDirectory";
+    private const string FilesOutputDirectoryKey = "FilesOutputDirectory";
 
     private const string BlobContainerNameKey = "BlobContainerName";
     private const string BlobFolderNameKey = "BlobFolderName";
     private const string AzureStorageConnectionStringKey = "AzureStorageConnectionString";
+
+    protected static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
     public FileProcessService()
     {
@@ -50,33 +53,51 @@ namespace DocumentCaptureService.Services
     private void InitFileProcessor()
     {
       var inputDirectory = ConfigurationManager.AppSettings[FilesInputDirectoryKey];
+      var outputDirectory = ConfigurationManager.AppSettings[FilesOutputDirectoryKey];
 
-      //var outputDirectory = ConfigurationManager.AppSettings[FilesOutputDirectoryKey];
-      //var fileRepository = new LocalStorageRepository(outputDirectory);
+      var sourceRepository = new LocalStorageRepository(inputDirectory);
+      var destinationRepository = new LocalStorageRepository(outputDirectory);
 
-      var blobContainerName = ConfigurationManager.AppSettings[BlobContainerNameKey];
-      var blobFolderName = ConfigurationManager.AppSettings[BlobFolderNameKey];
-      var azureStorageConnectionString = ConfigurationManager.AppSettings[AzureStorageConnectionStringKey];
+      //var blobContainerName = ConfigurationManager.AppSettings[BlobContainerNameKey];
+      //var blobFolderName = ConfigurationManager.AppSettings[BlobFolderNameKey];
+      //var azureStorageConnectionString = ConfigurationManager.AppSettings[AzureStorageConnectionStringKey];
+      //var blobStorageRepository = new BlobStorageRepository(blobContainerName, azureStorageConnectionString, blobFolderName);
 
-      var blobStorageRepository = new BlobStorageRepository(blobContainerName, azureStorageConnectionString, blobFolderName);
+      var newFileAdded = new AutoResetEvent(false);
+      var watcher = new FileSystemWatcher(inputDirectory);
 
-      var singleFileMoveRepeatableProcessor = new SingleFileMoveRepeatableProcessor(inputDirectory, _workStopped, blobStorageRepository);
-      var fileServiceProcessor = new RepeatableWorker(singleFileMoveRepeatableProcessor);
+      watcher.Created += (sender, e) =>
+      {
+        Logger.Info($"Create event has been raised. Name: {e.Name}, Path: {e.FullPath}, Event type: {e.ChangeType}");
+        newFileAdded.Set();
+      };
+
+      var singleFileMoveRepeatableProcessor = new SingleFileMoveRepeatableProcessor(_workStopped, sourceRepository, destinationRepository);
+      var fileServiceProcessor = new RepeatableWorker(singleFileMoveRepeatableProcessor, _workStopped, newFileAdded);
       _workingThreads.Add(fileServiceProcessor.GetThread());
-      _watchers.Add(singleFileMoveRepeatableProcessor.Watcher);
+      _watchers.Add(watcher);
     }
 
     private void InitImageProcessor()
     {
       var imagesDirectory = ConfigurationManager.AppSettings[ImagesInputDirectoryKey];
+      var inputDirectory = ConfigurationManager.AppSettings[FilesInputDirectoryKey];
 
-      var inputDirectory = ConfigurationManager.AppSettings[FilesInputDirectoryKey];  
-      var imagesRepository = new LocalStorageRepository(inputDirectory);
+      var sourceRepository = new LocalStorageRepository(imagesDirectory);
+      var destinationRepository = new LocalStorageRepository(inputDirectory);
 
-      var imagesConversionAndMoveRepeatableProcessor = new ImagesConversionAndMoveRepeatableProcessor(imagesDirectory, _workStopped, imagesRepository);
-      var imageServiceProcessor = new RepeatableWorker(imagesConversionAndMoveRepeatableProcessor);
+      var newFileAdded = new AutoResetEvent(false);
+      var watcher = new FileSystemWatcher(imagesDirectory);
+
+      watcher.Created += (sender, e) => {
+        Logger.Info($"Create event has been raised. Name: {e.Name}, Path: {e.FullPath}, Event type: {e.ChangeType}");
+        newFileAdded.Set();
+      };
+
+      var imagesConversionAndMoveRepeatableProcessor = new ImagesConversionAndMoveRepeatableProcessor(_workStopped, sourceRepository, destinationRepository);
+      var imageServiceProcessor = new RepeatableWorker(imagesConversionAndMoveRepeatableProcessor, _workStopped, newFileAdded);
       _workingThreads.Add(imageServiceProcessor.GetThread());
-      _watchers.Add(imagesConversionAndMoveRepeatableProcessor.Watcher);
+      _watchers.Add(watcher);
     }
   }
 }

@@ -94,15 +94,16 @@
     <Compile Include="Helpers\PdfHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RepeatableProcessors\FileRepeatableProcessor.cs" />
+    <Compile Include="RepeatableProcessors\ObjectMoveRepeatableProcessor.cs" />
     <Compile Include="RepeatableProcessors\ImagesConversionAndMoveRepeatableProcessor.cs" />
     <Compile Include="RepeatableProcessors\IRepeatableProcessor.cs" />
     <Compile Include="RepeatableProcessors\SingleFileMoveRepeatableProcessor.cs" />
     <Compile Include="Repositories\BlobStorageRepository.cs" />
-    <Compile Include="Repositories\IFileRepository.cs" />
+    <Compile Include="Repositories\IObjectRepository.cs" />
     <Compile Include="Repositories\LocalStorageRepository.cs" />
     <Compile Include="Repositories\MsmqRepository.cs" />
     <Compile Include="Services\FileProcessService.cs" />
+    <Compile Include="ServiceWorkers\LocalStorageListenerRepeatableWorker.cs" />
     <Compile Include="ServiceWorkers\RepeatableWorker.cs" />
   </ItemGroup>
   <ItemGroup>

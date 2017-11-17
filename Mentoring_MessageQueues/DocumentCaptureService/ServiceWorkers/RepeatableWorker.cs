@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using DocumentCaptureService.RepeatableProcessors;
+using NLog;
 
 namespace DocumentCaptureService.ServiceWorkers
 {
@@ -9,11 +10,13 @@ namespace DocumentCaptureService.ServiceWorkers
     private readonly List<WaitHandle> _waitHandles;
     private readonly IRepeatableProcessor _serviceRepeatableProcessor;
 
-    public RepeatableWorker(IRepeatableProcessor serviceRepeatableProcessor)
+    //protected static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+    public RepeatableWorker(IRepeatableProcessor serviceRepeatableProcessor, WaitHandle workStopped, params WaitHandle[] nonStoppedWaiteHandles)
     {
       _serviceRepeatableProcessor = serviceRepeatableProcessor;
-      _waitHandles = new List<WaitHandle> { _serviceRepeatableProcessor.WorkStopped };
-      _waitHandles.AddRange(_serviceRepeatableProcessor.GetNonStoppedWaitHandles());
+      _waitHandles = new List<WaitHandle> { workStopped };
+      _waitHandles.AddRange(nonStoppedWaiteHandles);
     }
 
     public Thread GetThread()
@@ -29,9 +32,9 @@ namespace DocumentCaptureService.ServiceWorkers
       while (WaitHandle.WaitAny(_waitHandles.ToArray()) != 0);
     }
 
-    protected void AddWaitHandles(params WaitHandle[] handle)
-    {
-      _waitHandles.AddRange(handle);
-    }
+    //protected void AddWaitHandles(params WaitHandle[] handle)
+    //{
+    //  _waitHandles.AddRange(handle);
+    //}
   }
 }

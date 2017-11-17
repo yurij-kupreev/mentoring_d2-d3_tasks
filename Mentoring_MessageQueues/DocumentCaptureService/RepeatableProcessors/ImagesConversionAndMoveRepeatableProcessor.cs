@@ -9,41 +9,38 @@ using DocumentCaptureService.Repositories;
 
 namespace DocumentCaptureService.RepeatableProcessors
 {
-  public class ImagesConversionAndMoveRepeatableProcessor : FileRepeatableProcessor
+  public class ImagesConversionAndMoveRepeatableProcessor : ObjectMoveRepeatableProcessor
   {
     private readonly PdfHelper _pdfHelper;
 
     private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
     private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
 
-    private readonly IFileRepository _fileRepository;
-
-    public ImagesConversionAndMoveRepeatableProcessor(string sourceDirectory, WaitHandle workStopped, IFileRepository fileRepository)
-        : base(sourceDirectory, workStopped)
+    public ImagesConversionAndMoveRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IObjectRepository destiantionObjectRepository)
+        : base(workStopped, sourceObjectRepository, destiantionObjectRepository)
     {
-      _fileRepository = fileRepository;
       _pdfHelper = new PdfHelper();
     }
 
     public override void RepeatableProcess()
     {
       var wasEndImage = false;
-      var imagePaths = new List<string>();
+      var imageObjectNames = new List<string>();
 
-      foreach (var filePath in Directory.EnumerateFiles(SourceDirectory)) {
+      foreach (var objectName in SourceObjectRepository.EnumerateObjects()) {
         if (WorkStopped.WaitOne(0)) {
-          if (wasEndImage) TrySaveDocument(3, imagePaths);
+          if (wasEndImage) TrySaveDocument(3, imageObjectNames);
           return;
         }
 
-        if (IsImage(filePath) && TryToOpen(filePath, 3)) {
-          wasEndImage = wasEndImage | IsEndImage(filePath);
-          imagePaths.Add(filePath);
+        if (IsImage(objectName) && TryToOpen(objectName, 3)) {
+          wasEndImage = wasEndImage | IsEndImage(objectName);
+          imageObjectNames.Add(objectName);
         }
       }
 
       if (wasEndImage) {
-        TrySaveDocument(3, imagePaths);
+        TrySaveDocument(3, imageObjectNames);
       }
     }
 
@@ -63,35 +60,35 @@ namespace DocumentCaptureService.RepeatableProcessors
       return regex.IsMatch(fileName);
     }
 
-    private void TrySaveDocument(int tryCount, IEnumerable<string> imagePaths)
+    private void TrySaveDocument(int tryCount, IEnumerable<string> imageObjectNames)
     {
-      var imageFileNames = string.Join(", ", Directory.EnumerateFiles(SourceDirectory).Select(Path.GetFileName));
-      Logger.Info($"Start image conversion to pdf file: {imageFileNames}");
+      Logger.Info($"Start image conversion to pdf file: {string.Join(", ", imageObjectNames)}");
       for (var i = 0; i < tryCount; i++) {
         try {
-          var contentStream = _pdfHelper.RenderDocumentStream(imagePaths);
+          var contentStream = _pdfHelper.RenderImageDocumentStream(imageObjectNames.Select(objectName => SourceObjectRepository.OpenObjectStream(objectName)));
           var pdfFileName = $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf";
 
-          _fileRepository.SaveFile(pdfFileName, contentStream);
+          DestiantionObjectRepository.SaveObject(pdfFileName, contentStream);
 
           Logger.Info("Ended image conversion to pdf file and saving.");
           return;
-        } catch (IOException) {
+        } catch (Exception) {
           Thread.Sleep(5000);
         }
       }
 
     }
 
-    private bool TryToOpen(string filePath, int tryCount)
+    private bool TryToOpen(string objectName, int tryCount)
     {
       for (var i = 0; i < tryCount; i++) {
-        try {
-          var file = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None);
-          file.Close();
+        try
+        {
+          var objectStream = SourceObjectRepository.OpenObjectStream(objectName);
+          objectStream.Close();
 
           return true;
-        } catch (IOException) {
+        } catch (Exception) {
           Thread.Sleep(5000);
         }
       }

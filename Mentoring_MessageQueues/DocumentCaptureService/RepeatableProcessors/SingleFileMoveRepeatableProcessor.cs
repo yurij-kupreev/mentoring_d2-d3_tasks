@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,50 +7,49 @@ using DocumentCaptureService.Repositories;
 
 namespace DocumentCaptureService.RepeatableProcessors
 {
-  public class SingleFileMoveRepeatableProcessor : FileRepeatableProcessor
+  public class SingleFileMoveRepeatableProcessor : ObjectMoveRepeatableProcessor
   {
-    private readonly IFileRepository _fileRepository;
-
-    public SingleFileMoveRepeatableProcessor(string directory, WaitHandle workStopped, IFileRepository fileRepository)
-      : base(directory, workStopped)
+    public SingleFileMoveRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IObjectRepository destiantionObjectRepository)
+      : base(workStopped, sourceObjectRepository, destiantionObjectRepository)
     {
-      _fileRepository = fileRepository;
     }
 
     public override void RepeatableProcess()
     {
       var tasks = new List<Task>();
 
-      foreach (var filePath in Directory.EnumerateFiles(SourceDirectory)) {
+      foreach (var objectName in SourceObjectRepository.EnumerateObjects()) {
         if (WorkStopped.WaitOne(0)) break;
 
-        tasks.Add(this.ProcessFile(filePath));
+        tasks.Add(this.ProcessFile(objectName));
       }
 
       Task.WaitAll(tasks.ToArray());
     }
 
-    private async Task ProcessFile(string filePath)
+    private async Task ProcessFile(string objectName)
     {
-      Logger.Info($"Start processing file: {filePath}");
+      Logger.Info($"Start processing object: {objectName}");
 
-      await TryToMoveAsync(filePath, 3);
+      await TryToMoveAsync(objectName, 3);
 
-      Logger.Info($"Ended processing file: {filePath}");
+      Logger.Info($"Ended processing object: {objectName}");
     }
 
-    private async Task TryToMoveAsync(string filePath, int tryCount)
+    private async Task TryToMoveAsync(string objectName, int tryCount)
     {
       for (var i = 0; i < tryCount; i++) {
-        try {
-          using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
-            await _fileRepository.SaveFileAsync(Path.GetFileName(filePath), fileStream);
+        try
+        {
+          using (var contentStream = SourceObjectRepository.OpenObjectStream(objectName))
+          {
+            await DestiantionObjectRepository.SaveObjectAsync(objectName, contentStream);
           }
 
-          File.Delete(filePath);
+          SourceObjectRepository.DeleteObject(objectName);
 
           return;
-        } catch (IOException) {
+        } catch (Exception) {
           Thread.Sleep(5000);
         }
       }
