@@ -58,9 +58,12 @@ namespace DocumentCaptureService.Helpers
     {
       var objectName = Guid.NewGuid().ToString();
 
-      _localStorageRepository.SaveObject(objectName, objectStream);
+      using (objectStream)
+      {
+        _localStorageRepository.SaveObject(objectName, objectStream);
+      }
 
-      return _localStorageRepository.GetObjectPath(objectName);
+        return _localStorageRepository.GetObjectPath(objectName);
     }
   }
 }

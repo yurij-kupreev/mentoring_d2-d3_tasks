@@ -92,6 +92,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\PdfHelper.cs" />
+    <Compile Include="Messaging\IMessaging.cs" />
+    <Compile Include="Messaging\MsmqMessaging.cs" />
+    <Compile Include="Models\ChunkMessage.cs" />
+    <Compile Include="Models\CustomFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepeatableProcessors\ObjectMoveRepeatableProcessor.cs" />
