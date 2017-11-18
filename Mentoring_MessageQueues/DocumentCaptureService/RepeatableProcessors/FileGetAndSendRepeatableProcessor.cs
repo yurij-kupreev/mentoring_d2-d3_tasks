@@ -51,6 +51,8 @@ namespace DocumentCaptureService.RepeatableProcessors
             _destiantionMessenger.Send(new CustomMessage{Label = objectName, Body = contentStream });
           }
 
+          _sourceObjectRepository.DeleteObject(objectName);
+
           return;
         } catch (Exception) {
           Thread.Sleep(5000);

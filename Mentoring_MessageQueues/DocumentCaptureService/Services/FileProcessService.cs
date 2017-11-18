@@ -24,6 +24,9 @@ namespace DocumentCaptureService.Services
     private const string BlobFolderNameKey = "BlobFolderName";
     private const string AzureStorageConnectionStringKey = "AzureStorageConnectionString";
 
+    private const string MsmqSingleFileQueueNameKey = "MsmqSingleFileQueueName";
+    private const string MsmqImageSetQueueNameKey = "MsmqImageSetQueueName";
+
     protected static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
     public FileProcessService()
@@ -64,7 +67,7 @@ namespace DocumentCaptureService.Services
       //var azureStorageConnectionString = ConfigurationManager.AppSettings[AzureStorageConnectionStringKey];
       //var blobStorageRepository = new BlobStorageRepository(blobContainerName, azureStorageConnectionString, blobFolderName);
 
-      var messenger = new MsmqMessenger(ConfigurationManager.AppSettings["MsmqQueueName"]);
+      var messenger = new MsmqMessenger(ConfigurationManager.AppSettings[MsmqSingleFileQueueNameKey]);
       //var destinationRepository = new MessengerRepository(messenger);
 
       var newFileAdded = new AutoResetEvent(false);
@@ -85,10 +88,11 @@ namespace DocumentCaptureService.Services
     private void InitImageProcessor()
     {
       var imagesDirectory = ConfigurationManager.AppSettings[ImagesInputDirectoryKey];
-      var inputDirectory = ConfigurationManager.AppSettings[FilesInputDirectoryKey];
+      //var inputDirectory = ConfigurationManager.AppSettings[FilesInputDirectoryKey];
 
       var sourceRepository = new LocalStorageRepository(imagesDirectory);
-      var destinationRepository = new LocalStorageRepository(inputDirectory);
+      //var destinationRepository = new LocalStorageRepository(inputDirectory);
+      var messenger = new MsmqMessenger(ConfigurationManager.AppSettings[MsmqImageSetQueueNameKey]);
 
       var newFileAdded = new AutoResetEvent(false);
       var watcher = new FileSystemWatcher(imagesDirectory);
@@ -98,7 +102,7 @@ namespace DocumentCaptureService.Services
         newFileAdded.Set();
       };
 
-      var imagesConversionAndMoveRepeatableProcessor = new ImagesConversionAndMoveRepeatableProcessor(_workStopped, sourceRepository, destinationRepository);
+      var imagesConversionAndMoveRepeatableProcessor = new ImagesConversionAndSendRepeatableProcessor(_workStopped, sourceRepository, messenger);
       var imageServiceProcessor = new RepeatableWorker(imagesConversionAndMoveRepeatableProcessor, _workStopped, newFileAdded);
       _workingThreads.Add(imageServiceProcessor.GetThread());
       _watchers.Add(watcher);

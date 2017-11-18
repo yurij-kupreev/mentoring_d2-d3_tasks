@@ -1,35 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using DocumentCaptureService.Helpers;
+using DocumentCaptureService.Messaging;
+using DocumentCaptureService.Models;
 using DocumentCaptureService.Repositories;
+using NLog;
 
 namespace DocumentCaptureService.RepeatableProcessors
 {
-  public class ImagesConversionAndMoveRepeatableProcessor : ObjectMoveRepeatableProcessor
+  public class ImagesConversionAndSendRepeatableProcessor: IRepeatableProcessor
   {
-    private readonly PdfHelper _pdfHelper;
+    public WaitHandle WorkStopped { get; set; }
+
+    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+    private readonly IObjectRepository _sourceObjectRepository;
+    private readonly IMessenger _destiantionMessenger;
 
     private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
     private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
 
-    public ImagesConversionAndMoveRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IObjectRepository destiantionObjectRepository)
-        : base(workStopped, sourceObjectRepository, destiantionObjectRepository)
+    public ImagesConversionAndSendRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IMessenger destiantionMessenger)
     {
-      _pdfHelper = new PdfHelper();
+      WorkStopped = workStopped;
+      _sourceObjectRepository = sourceObjectRepository;
+      _destiantionMessenger = destiantionMessenger;
     }
 
-    public override void RepeatableProcess()
+    public void RepeatableProcess()
     {
       var wasEndImage = false;
       var imageObjectNames = new List<string>();
 
-      foreach (var objectName in SourceObjectRepository.EnumerateObjects()) {
+      foreach (var objectName in _sourceObjectRepository.EnumerateObjects()) {
         if (WorkStopped.WaitOne(0)) {
-          if (wasEndImage) TrySaveDocument(3, imageObjectNames);
+          if (wasEndImage) TrySendDocuments(3, imageObjectNames);
           return;
         }
 
@@ -40,7 +46,7 @@ namespace DocumentCaptureService.RepeatableProcessors
       }
 
       if (wasEndImage) {
-        TrySaveDocument(3, imageObjectNames);
+        TrySendDocuments(3, imageObjectNames);
       }
     }
 
@@ -60,22 +66,22 @@ namespace DocumentCaptureService.RepeatableProcessors
       return regex.IsMatch(fileName);
     }
 
-    private void TrySaveDocument(int tryCount, IEnumerable<string> imageObjectNames)
+    private void TrySendDocuments(int tryCount, IEnumerable<string> imageObjectNames)
     {
-      Logger.Info($"Start image conversion to pdf file: {string.Join(", ", imageObjectNames)}");
+      Logger.Info($"Start images sending: {string.Join(", ", imageObjectNames)}");
       for (var i = 0; i < tryCount; i++) {
         try {
-          var contentStream = _pdfHelper.RenderImageDocumentStream(imageObjectNames.Select(objectName => SourceObjectRepository.OpenObjectStream(objectName)));
-          var pdfFileName = $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf";
-
-          DestiantionObjectRepository.SaveObject(pdfFileName, contentStream);
-          
           foreach (var imageObjectName in imageObjectNames)
           {
-            SourceObjectRepository.DeleteObject(imageObjectName);
+            var stream = _sourceObjectRepository.OpenObjectStream(imageObjectName);
+
+            using (stream)
+            {
+              _destiantionMessenger.Send(new CustomMessage{Label = imageObjectName, Body = stream});
+            }
           }
 
-          Logger.Info("Ended image conversion to pdf file and saving.");
+          Logger.Info("Ended image sending.");
           return;
         } catch (Exception) {
           Thread.Sleep(5000);
@@ -87,9 +93,8 @@ namespace DocumentCaptureService.RepeatableProcessors
     private bool TryToOpen(string objectName, int tryCount)
     {
       for (var i = 0; i < tryCount; i++) {
-        try
-        {
-          var objectStream = SourceObjectRepository.OpenObjectStream(objectName);
+        try {
+          var objectStream = _sourceObjectRepository.OpenObjectStream(objectName);
           objectStream.Close();
 
           return true;
