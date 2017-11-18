@@ -9,7 +9,7 @@ using NLog;
 
 namespace DocumentCaptureService.RepeatableProcessors
 {
-  public class ImagesConversionAndSendRepeatableProcessor: IRepeatableProcessor
+  public class ImageSetrGetAndSendRepeatableProcessor: IRepeatableProcessor
   {
     public WaitHandle WorkStopped { get; set; }
 
@@ -21,7 +21,7 @@ namespace DocumentCaptureService.RepeatableProcessors
     private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
     private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
 
-    public ImagesConversionAndSendRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IMessenger destiantionMessenger)
+    public ImageSetrGetAndSendRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IMessenger destiantionMessenger)
     {
       WorkStopped = workStopped;
       _sourceObjectRepository = sourceObjectRepository;

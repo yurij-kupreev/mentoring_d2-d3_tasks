@@ -4,21 +4,31 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using DocumentCaptureService.Repositories;
+using NLog;
 
 namespace DocumentCaptureService.RepeatableProcessors
 {
-  public class SingleFileMoveRepeatableProcessor : ObjectMoveRepeatableProcessor
+  public class SingleFileMoveRepeatableProcessor : IRepeatableProcessor
   {
+    public WaitHandle WorkStopped { get; set; }
+
+    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+    private readonly IObjectRepository _sourceObjectRepository;
+    private readonly IObjectRepository _destiantionObjectRepository;
+
     public SingleFileMoveRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IObjectRepository destiantionObjectRepository)
-      : base(workStopped, sourceObjectRepository, destiantionObjectRepository)
     {
+      WorkStopped = workStopped;
+      _sourceObjectRepository = sourceObjectRepository;
+      _destiantionObjectRepository = destiantionObjectRepository;
     }
 
-    public override void RepeatableProcess()
+    public void RepeatableProcess()
     {
       var tasks = new List<Task>();
 
-      foreach (var objectName in SourceObjectRepository.EnumerateObjects()) {
+      foreach (var objectName in _sourceObjectRepository.EnumerateObjects()) {
         if (WorkStopped.WaitOne(0)) break;
 
         tasks.Add(this.ProcessFile(objectName));
@@ -41,12 +51,12 @@ namespace DocumentCaptureService.RepeatableProcessors
       for (var i = 0; i < tryCount; i++) {
         try
         {
-          using (var contentStream = SourceObjectRepository.OpenObjectStream(objectName))
+          using (var contentStream = _sourceObjectRepository.OpenObjectStream(objectName))
           {
-            await DestiantionObjectRepository.SaveObjectAsync(objectName, contentStream);
+            await _destiantionObjectRepository.SaveObjectAsync(objectName, contentStream);
           }
 
-          SourceObjectRepository.DeleteObject(objectName);
+          _sourceObjectRepository.DeleteObject(objectName);
 
           return;
         } catch (Exception) {
