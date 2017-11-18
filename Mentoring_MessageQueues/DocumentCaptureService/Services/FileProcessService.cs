@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.IO;
 using System.Threading;
+using DocumentCaptureService.Messaging;
 using DocumentCaptureService.RepeatableProcessors;
 using DocumentCaptureService.Repositories;
 using DocumentCaptureService.ServiceWorkers;
@@ -56,12 +57,15 @@ namespace DocumentCaptureService.Services
       var outputDirectory = ConfigurationManager.AppSettings[FilesOutputDirectoryKey];
 
       var sourceRepository = new LocalStorageRepository(inputDirectory);
-      var destinationRepository = new LocalStorageRepository(outputDirectory);
+      //var destinationRepository = new LocalStorageRepository(outputDirectory);
 
       //var blobContainerName = ConfigurationManager.AppSettings[BlobContainerNameKey];
       //var blobFolderName = ConfigurationManager.AppSettings[BlobFolderNameKey];
       //var azureStorageConnectionString = ConfigurationManager.AppSettings[AzureStorageConnectionStringKey];
       //var blobStorageRepository = new BlobStorageRepository(blobContainerName, azureStorageConnectionString, blobFolderName);
+
+      var messenger = new MsmqMessenger(ConfigurationManager.AppSettings["MsmqQueueName"]);
+      //var destinationRepository = new MessengerRepository(messenger);
 
       var newFileAdded = new AutoResetEvent(false);
       var watcher = new FileSystemWatcher(inputDirectory);
@@ -72,7 +76,7 @@ namespace DocumentCaptureService.Services
         newFileAdded.Set();
       };
 
-      var singleFileMoveRepeatableProcessor = new SingleFileMoveRepeatableProcessor(_workStopped, sourceRepository, destinationRepository);
+      var singleFileMoveRepeatableProcessor = new FileGetAndSendRepeatableProcessor(_workStopped, sourceRepository, messenger);
       var fileServiceProcessor = new RepeatableWorker(singleFileMoveRepeatableProcessor, _workStopped, newFileAdded);
       _workingThreads.Add(fileServiceProcessor.GetThread());
       _watchers.Add(watcher);
@@ -99,5 +103,7 @@ namespace DocumentCaptureService.Services
       _workingThreads.Add(imageServiceProcessor.GetThread());
       _watchers.Add(watcher);
     }
+
+    
   }
 }

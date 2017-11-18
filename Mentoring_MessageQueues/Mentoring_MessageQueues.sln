@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentCaptureService", "DocumentCaptureService\DocumentCaptureService.csproj", "{1AB7D06F-EBD2-472B-B1E4-3DEB754FE987}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentralProcessor", "CentralProcessor\CentralProcessor.csproj", "{D423B0D3-8660-4BA4-8FCA-AC8E48B26EC3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{1AB7D06F-EBD2-472B-B1E4-3DEB754FE987}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AB7D06F-EBD2-472B-B1E4-3DEB754FE987}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AB7D06F-EBD2-472B-B1E4-3DEB754FE987}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D423B0D3-8660-4BA4-8FCA-AC8E48B26EC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D423B0D3-8660-4BA4-8FCA-AC8E48B26EC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D423B0D3-8660-4BA4-8FCA-AC8E48B26EC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D423B0D3-8660-4BA4-8FCA-AC8E48B26EC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

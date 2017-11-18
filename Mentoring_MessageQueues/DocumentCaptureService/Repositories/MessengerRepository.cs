@@ -2,26 +2,28 @@
 using System.IO;
 using System.Messaging;
 using System.Threading.Tasks;
+using DocumentCaptureService.Messaging;
+using DocumentCaptureService.Models;
 
 namespace DocumentCaptureService.Repositories
 {
-  public class MsmqRepository : IObjectRepository
+  public class MessengerRepository : IObjectRepository
   {
-    private readonly MessageQueue _queue;
+    private readonly IMessenger _messanger;
 
-    public MsmqRepository(string queueName)
+    public MessengerRepository(IMessenger messenger)
     {
-      _queue = MessageQueue.Exists(queueName) ? new MessageQueue(queueName) : MessageQueue.Create(queueName);
+      _messanger = messenger;
     }
 
     public void SaveObject(string objectName, Stream contentStream)
     {
-      //_queue.S
+      _messanger.Send(new CustomMessage{ Label = objectName, Body = contentStream });
     }
 
     public Task SaveObjectAsync(string objectName, Stream contentStream)
     {
-      throw new System.NotImplementedException();
+      return Task.Factory.StartNew(() => SaveObject(objectName, contentStream));
     }
 
     public Stream OpenObjectStream(string objectName)
