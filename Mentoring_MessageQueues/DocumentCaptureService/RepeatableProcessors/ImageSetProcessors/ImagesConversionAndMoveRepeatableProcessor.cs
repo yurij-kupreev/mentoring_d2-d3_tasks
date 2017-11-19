@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -8,7 +7,7 @@ using DocumentCaptureService.Helpers;
 using DocumentCaptureService.Repositories;
 using NLog;
 
-namespace DocumentCaptureService.RepeatableProcessors
+namespace DocumentCaptureService.RepeatableProcessors.ImageSetProcessors
 {
   public class ImagesConversionAndMoveRepeatableProcessor : IRepeatableProcessor
   {
@@ -86,7 +85,7 @@ namespace DocumentCaptureService.RepeatableProcessors
         _sourceObjectRepository.DeleteObject(imageObjectName);
       }
 
-      Logger.Info("Ended image conversion to pdf file and saving.");
+      Logger.Info($"Ended image conversion to pdf file and saving. File name: {pdfFileName}.");
     }
   }
 }

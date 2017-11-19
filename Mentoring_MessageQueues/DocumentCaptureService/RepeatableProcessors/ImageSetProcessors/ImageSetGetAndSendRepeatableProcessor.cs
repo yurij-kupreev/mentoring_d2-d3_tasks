@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using DocumentCaptureService.Messaging;
@@ -7,7 +6,7 @@ using DocumentCaptureService.Models;
 using DocumentCaptureService.Repositories;
 using NLog;
 
-namespace DocumentCaptureService.RepeatableProcessors
+namespace DocumentCaptureService.RepeatableProcessors.ImageSetProcessors
 {
   public class ImageSetGetAndSendRepeatableProcessor : IRepeatableProcessor
   {

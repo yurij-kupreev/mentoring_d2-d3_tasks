@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using DocumentCaptureService.Messaging;
 using DocumentCaptureService.Models;
 using DocumentCaptureService.Repositories;
 using NLog;
 
-namespace DocumentCaptureService.RepeatableProcessors
+namespace DocumentCaptureService.RepeatableProcessors.FileProcessors
 {
   public class FileGetAndSendRepeatableProcessor : IRepeatableProcessor
   {

@@ -3,7 +3,7 @@ using DocumentCaptureService.Messaging;
 using DocumentCaptureService.Repositories;
 using NLog;
 
-namespace DocumentCaptureService.RepeatableProcessors
+namespace DocumentCaptureService.RepeatableProcessors.FileProcessors
 {
   public class FileReceiveAndMoveRepeatableProcessor: IRepeatableProcessor
   {
