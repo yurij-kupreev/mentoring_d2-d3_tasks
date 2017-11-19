@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DocumentCaptureService.Repositories
@@ -9,9 +11,12 @@ namespace DocumentCaptureService.Repositories
   {
     private readonly string _destinationDirectory;
 
-    public LocalStorageRepository(string destinationDirectory)
+    private readonly int _openFileTryCount;
+
+    public LocalStorageRepository(string destinationDirectory, int openFileTryCount = 3)
     {
       _destinationDirectory = destinationDirectory;
+      _openFileTryCount = openFileTryCount >= 1 ? openFileTryCount : 1;
 
       if (!Directory.Exists(destinationDirectory)) {
         Directory.CreateDirectory(destinationDirectory);
@@ -47,9 +52,21 @@ namespace DocumentCaptureService.Repositories
     {
       var destinationFilePath = this.GetObjectPath(objectName);
 
-      var fileStream = new FileStream(destinationFilePath, FileMode.Open, FileAccess.Read);
+      for (var i = 0; i < this._openFileTryCount; ++i)
+      {
+        try
+        {
+          var fileStream = new FileStream(destinationFilePath, FileMode.Open, FileAccess.Read);
 
-      return fileStream;
+          return fileStream;
+        }
+        catch (IOException)
+        {
+          Thread.Sleep(TimeSpan.FromSeconds(2));
+        }
+      }
+
+      return null;
     }
 
     public IEnumerable<string> EnumerateObjects()

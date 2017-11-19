@@ -39,18 +39,18 @@ namespace DocumentCaptureService.RepeatableProcessors
 
       foreach (var objectName in _sourceObjectRepository.EnumerateObjects()) {
         if (WorkStopped.WaitOne(0)) {
-          if (wasEndImage) TrySaveDocument(3, imageObjectNames);
+          if (wasEndImage) SaveDocument(imageObjectNames);
           return;
         }
 
-        if (IsImage(objectName) && TryToOpen(objectName, 3)) {
+        if (IsImage(objectName)) {
           wasEndImage = wasEndImage | IsEndImage(objectName);
           imageObjectNames.Add(objectName);
         }
       }
 
       if (wasEndImage) {
-        TrySaveDocument(3, imageObjectNames);
+        SaveDocument(imageObjectNames);
       }
     }
 
@@ -70,45 +70,23 @@ namespace DocumentCaptureService.RepeatableProcessors
       return regex.IsMatch(fileName);
     }
 
-    private void TrySaveDocument(int tryCount, IEnumerable<string> imageObjectNames)
+    private void SaveDocument(IEnumerable<string> imageObjectNames)
     {
       Logger.Info($"Start image conversion to pdf file: {string.Join(", ", imageObjectNames)}");
-      for (var i = 0; i < tryCount; i++) {
-        try {
-          var contentStream = _pdfHelper.RenderImageDocumentStream(imageObjectNames.Select(objectName => _sourceObjectRepository.OpenObjectStream(objectName)));
-          var pdfFileName = $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf";
 
-          _destiantionObjectRepository.SaveObject(pdfFileName, contentStream);
-          
-          foreach (var imageObjectName in imageObjectNames)
-          {
-            _sourceObjectRepository.DeleteObject(imageObjectName);
-          }
+      var contentStream = _pdfHelper.RenderImageDocumentStream(imageObjectNames.Select(objectName => _sourceObjectRepository.OpenObjectStream(objectName)));
+      var pdfFileName = $"images_{DateTime.Now:MM-dd-yy_H-mm-ss}.pdf";
 
-          Logger.Info("Ended image conversion to pdf file and saving.");
-          return;
-        } catch (Exception) {
-          Thread.Sleep(5000);
-        }
+      using (contentStream)
+      {
+        _destiantionObjectRepository.SaveObject(pdfFileName, contentStream);
       }
 
-    }
-
-    private bool TryToOpen(string objectName, int tryCount)
-    {
-      for (var i = 0; i < tryCount; i++) {
-        try
-        {
-          var objectStream = _sourceObjectRepository.OpenObjectStream(objectName);
-          objectStream.Close();
-
-          return true;
-        } catch (Exception) {
-          Thread.Sleep(5000);
-        }
+      foreach (var imageObjectName in imageObjectNames) {
+        _sourceObjectRepository.DeleteObject(imageObjectName);
       }
 
-      return false;
+      Logger.Info("Ended image conversion to pdf file and saving.");
     }
   }
 }

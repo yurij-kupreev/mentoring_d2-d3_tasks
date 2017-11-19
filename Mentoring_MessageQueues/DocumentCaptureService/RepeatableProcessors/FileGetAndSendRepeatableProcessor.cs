@@ -38,26 +38,20 @@ namespace DocumentCaptureService.RepeatableProcessors
     {
       Logger.Info($"Start processing object: {objectName}");
 
-      TryToSend(objectName, 3);
+      Send(objectName);
 
       Logger.Info($"Ended processing object: {objectName}");
     }
 
-    private void TryToSend(string objectName, int tryCount)
+    private void Send(string objectName)
     {
-      for (var i = 0; i < tryCount; i++) {
-        try {
-          using (var contentStream = _sourceObjectRepository.OpenObjectStream(objectName)) {
-            _destiantionMessenger.Send(new CustomMessage{Label = objectName, Body = contentStream });
-          }
 
-          _sourceObjectRepository.DeleteObject(objectName);
-
-          return;
-        } catch (Exception) {
-          Thread.Sleep(5000);
-        }
+      using (var contentStream = _sourceObjectRepository.OpenObjectStream(objectName)) {
+        _destiantionMessenger.Send(new CustomMessage { Label = objectName, Body = contentStream });
       }
+
+      _sourceObjectRepository.DeleteObject(objectName);
     }
+
   }
 }

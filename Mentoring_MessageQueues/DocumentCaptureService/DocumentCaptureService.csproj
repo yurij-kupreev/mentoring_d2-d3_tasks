@@ -101,7 +101,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepeatableProcessors\FileGetAndSendRepeatableProcessor.cs" />
     <Compile Include="RepeatableProcessors\FileReceiveAndMoveRepeatableProcessor.cs" />
-    <Compile Include="RepeatableProcessors\ImageSetrGetAndSendRepeatableProcessor.cs" />
+    <Compile Include="RepeatableProcessors\ImageSetGetAndSendRepeatableProcessor.cs" />
     <Compile Include="RepeatableProcessors\ImagesConversionAndMoveRepeatableProcessor.cs" />
     <Compile Include="RepeatableProcessors\IRepeatableProcessor.cs" />
     <Compile Include="RepeatableProcessors\SingleFileMoveRepeatableProcessor.cs" />

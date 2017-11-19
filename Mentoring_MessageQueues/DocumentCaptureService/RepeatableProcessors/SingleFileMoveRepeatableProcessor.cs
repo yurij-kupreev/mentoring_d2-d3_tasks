@@ -41,28 +41,19 @@ namespace DocumentCaptureService.RepeatableProcessors
     {
       Logger.Info($"Start processing object: {objectName}");
 
-      await TryToMoveAsync(objectName, 3);
+      await MoveAsync(objectName);
 
       Logger.Info($"Ended processing object: {objectName}");
     }
 
-    private async Task TryToMoveAsync(string objectName, int tryCount)
+    private async Task MoveAsync(string objectName)
     {
-      for (var i = 0; i < tryCount; i++) {
-        try
-        {
-          using (var contentStream = _sourceObjectRepository.OpenObjectStream(objectName))
-          {
-            await _destiantionObjectRepository.SaveObjectAsync(objectName, contentStream);
-          }
-
-          _sourceObjectRepository.DeleteObject(objectName);
-
-          return;
-        } catch (Exception) {
-          Thread.Sleep(5000);
-        }
+      using (var contentStream = _sourceObjectRepository.OpenObjectStream(objectName)) {
+        await _destiantionObjectRepository.SaveObjectAsync(objectName, contentStream);
       }
+
+      _sourceObjectRepository.DeleteObject(objectName);
     }
+
   }
 }
