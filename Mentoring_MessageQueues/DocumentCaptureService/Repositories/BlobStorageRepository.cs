@@ -100,7 +100,9 @@ namespace DocumentCaptureService.Repositories
 
     public void DeleteObject(string objectName)
     {
-      throw new System.NotImplementedException();
+      var blobStreamPath = GetBlobPath(objectName);
+
+      _container.GetBlobReference(blobStreamPath).DeleteIfExists();
     }
   }
 }

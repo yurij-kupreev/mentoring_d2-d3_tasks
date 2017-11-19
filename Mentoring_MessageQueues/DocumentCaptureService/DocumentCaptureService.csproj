@@ -99,18 +99,16 @@
     <Compile Include="Models\CustomMessage.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RepeatableProcessors\FileGetAndSendRepeatableProcessor.cs" />
-    <Compile Include="RepeatableProcessors\FileReceiveAndMoveRepeatableProcessor.cs" />
-    <Compile Include="RepeatableProcessors\ImageSetGetAndSendRepeatableProcessor.cs" />
-    <Compile Include="RepeatableProcessors\ImagesConversionAndMoveRepeatableProcessor.cs" />
+    <Compile Include="RepeatableProcessors\FileProcessors\FileGetAndSendRepeatableProcessor.cs" />
+    <Compile Include="RepeatableProcessors\FileProcessors\FileReceiveAndMoveRepeatableProcessor.cs" />
+    <Compile Include="RepeatableProcessors\ImageSetProcessors\ImageSetGetAndSendRepeatableProcessor.cs" />
+    <Compile Include="RepeatableProcessors\ImageSetProcessors\ImagesConversionAndMoveRepeatableProcessor.cs" />
     <Compile Include="RepeatableProcessors\IRepeatableProcessor.cs" />
-    <Compile Include="RepeatableProcessors\SingleFileMoveRepeatableProcessor.cs" />
+    <Compile Include="RepeatableProcessors\FileProcessors\SingleFileMoveRepeatableProcessor.cs" />
     <Compile Include="Repositories\BlobStorageRepository.cs" />
     <Compile Include="Repositories\IObjectRepository.cs" />
     <Compile Include="Repositories\LocalStorageRepository.cs" />
-    <Compile Include="Repositories\MessengerRepository.cs" />
     <Compile Include="Services\FileProcessService.cs" />
-    <Compile Include="ServiceWorkers\LocalStorageListenerRepeatableWorker.cs" />
     <Compile Include="ServiceWorkers\RepeatableWorker.cs" />
   </ItemGroup>
   <ItemGroup>
