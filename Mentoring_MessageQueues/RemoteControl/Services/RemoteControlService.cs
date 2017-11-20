@@ -1,6 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
+using System.IO.MemoryMappedFiles;
+using System.Linq.Expressions;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Threading;
+using Common.Helpers;
+using Common.Messaging;
+using Common.Models;
 using NLog;
 using Timer = System.Timers.Timer;
 
@@ -14,17 +23,6 @@ namespace RemoteControl.Services
     private readonly List<FileSystemWatcher> _watchers;
     private readonly ManualResetEvent _workStopped;
 
-    private const string FilesInputDirectoryKey = "FilesInputDirectory";
-    private const string ImagesInputDirectoryKey = "ImagesInputDirectory";
-    private const string FilesOutputDirectoryKey = "FilesOutputDirectory";
-
-    private const string BlobContainerNameKey = "BlobContainerName";
-    private const string BlobFolderNameKey = "BlobFolderName";
-    private const string AzureStorageConnectionStringKey = "AzureStorageConnectionString";
-
-    private const string MsmqSingleFileQueueNameKey = "MsmqSingleFileQueueName";
-    private const string MsmqImageSetQueueNameKey = "MsmqImageSetQueueName";
-
     protected static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
     public RemoteControlService()
@@ -35,7 +33,10 @@ namespace RemoteControl.Services
       _timers = new List<Timer>();
       _watchers = new List<FileSystemWatcher>();
 
-      //InitSingleFileReceive();
+      InitStatusRequest();
+      InitStatusReceive();
+
+      
     }
 
     public void Start()
@@ -54,26 +55,28 @@ namespace RemoteControl.Services
       _workingThreads.ForEach(thr => thr.Join());
     }
 
-    //private void InitSingleFileReceive()
-    //{
-    //  var outputDirectory = ConfigurationManager.AppSettings[FilesOutputDirectoryKey];
+    private void InitStatusRequest()
+    {
+      var pubSub = new ServiceBusPublisher(ConfigurationManager.AppSettings[AppKeys.AzureServiceBusConnectionStringKey], ConfigurationManager.AppSettings[AppKeys.StatusTopicNameKey]);
+      pubSub.Publish(new CustomMessage { Label = "HELLO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", Body = new MemoryStream(Encoding.Unicode.GetBytes(@"here is STREAM BODY")) });
+    }
 
-    //  var messenger = new MsmqMessenger(ConfigurationManager.AppSettings[MsmqSingleFileQueueNameKey]);
+    private void InitStatusReceive()
+    {
+      var subscriber = new ServiceBusSubscriber(
+        ConfigurationManager.AppSettings[AppKeys.AzureServiceBusConnectionStringKey],
+        ConfigurationManager.AppSettings[AppKeys.StatusResponseTopicNameKey],
+        ConfigurationManager.AppSettings[AppKeys.StatusResponseSubscriptionNameKey]
+        );
 
-    //  var destinationRepository = new LocalStorageRepository(outputDirectory);
+      subscriber.MessageReceived += (sender, message) => {
+        var formatter = new BinaryFormatter();
 
-    //  var timerTicked = new AutoResetEvent(false);
-    //  var timer = new Timer { Interval = 1000 };
-    //  timer.Elapsed += (sender, e) => {
-    //    Logger.Info("Timer tick");
-    //    timerTicked.Set();
-    //  };
+        var status = formatter.Deserialize(message.Body) as ProcessorStatus;
 
-    //  var imagesConversionAndMoveRepeatableProcessor = new FileReceiveAndMoveRepeatableProcessor(_workStopped, messenger, destinationRepository);
-    //  var imageServiceProcessor = new RepeatableWorker(imagesConversionAndMoveRepeatableProcessor, _workStopped, timerTicked);
-    //  _workingThreads.Add(imageServiceProcessor.GetThread());
-    //  _timers.Add(timer);
-    //}
+        Console.WriteLine(status?.ToString());
+      };
+    }
 
   }
 }

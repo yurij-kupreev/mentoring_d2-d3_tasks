@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Common.Helpers;
+using Common.Models;
 using Common.Repositories;
 using NLog;
 
@@ -23,12 +24,20 @@ namespace Common.RepeatableProcessors.ImageSetProcessors
     private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
     private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
 
+    private readonly ProcessorStatus _processorStatus;
+
     public ImagesConversionAndMoveRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IObjectRepository destiantionObjectRepository)
     {
       WorkStopped = workStopped;
       _sourceObjectRepository = sourceObjectRepository;
       _destiantionObjectRepository = destiantionObjectRepository;
       _pdfHelper = new PdfHelper();
+
+      _processorStatus = new ProcessorStatus
+      {
+        SourceName = this.GetType().Name,
+        ProcessorStartTime = DateTime.Now
+      };
     }
 
     public void RepeatableProcess()
@@ -86,6 +95,12 @@ namespace Common.RepeatableProcessors.ImageSetProcessors
       }
 
       Logger.Info($"Ended image conversion to pdf file and saving. File name: {pdfFileName}.");
+      _processorStatus.ProcessedObjects.Add(pdfFileName);
+    }
+
+    public ProcessorStatus GetProcessorStatus()
+    {
+      return _processorStatus;
     }
   }
 }

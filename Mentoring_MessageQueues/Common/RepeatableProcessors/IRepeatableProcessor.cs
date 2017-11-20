@@ -1,10 +1,14 @@
-﻿namespace Common.RepeatableProcessors
+﻿using Common.Models;
+
+namespace Common.RepeatableProcessors
 {
   public interface IRepeatableProcessor
   {
     //WaitHandle WorkStopped { get; set; }
 
     void RepeatableProcess();
-   // IEnumerable<WaitHandle> GetNonStoppedWaitHandles();
+
+    ProcessorStatus GetProcessorStatus();
+    // IEnumerable<WaitHandle> GetNonStoppedWaitHandles();
   }
 }

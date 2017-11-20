@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Models;
 using Common.Repositories;
 using NLog;
 
@@ -8,6 +10,8 @@ namespace Common.RepeatableProcessors.FileProcessors
 {
   public class SingleFileMoveRepeatableProcessor : IRepeatableProcessor
   {
+    private object _locker = new object();
+
     public WaitHandle WorkStopped { get; set; }
 
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -15,11 +19,19 @@ namespace Common.RepeatableProcessors.FileProcessors
     private readonly IObjectRepository _sourceObjectRepository;
     private readonly IObjectRepository _destiantionObjectRepository;
 
+    private readonly ProcessorStatus _processorStatus;
+
     public SingleFileMoveRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IObjectRepository destiantionObjectRepository)
     {
       WorkStopped = workStopped;
       _sourceObjectRepository = sourceObjectRepository;
       _destiantionObjectRepository = destiantionObjectRepository;
+
+      _processorStatus = new ProcessorStatus
+      {
+        SourceName = this.GetType().Name,
+        ProcessorStartTime = DateTime.Now
+      };
     }
 
     public void RepeatableProcess()
@@ -42,6 +54,11 @@ namespace Common.RepeatableProcessors.FileProcessors
       await MoveAsync(objectName);
 
       Logger.Info($"Ended processing object: {objectName}");
+
+      lock (_locker)
+      {
+        _processorStatus.ProcessedObjects.Add(objectName);
+      }
     }
 
     private async Task MoveAsync(string objectName)
@@ -53,5 +70,9 @@ namespace Common.RepeatableProcessors.FileProcessors
       _sourceObjectRepository.DeleteObject(objectName);
     }
 
+    public ProcessorStatus GetProcessorStatus()
+    {
+      return _processorStatus;
+    }
   }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Common.Messaging;
@@ -20,11 +21,19 @@ namespace Common.RepeatableProcessors.ImageSetProcessors
     private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
     private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
 
+    private readonly ProcessorStatus _processorStatus;
+
     public ImageSetGetAndSendRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IMessenger destiantionMessenger)
     {
       WorkStopped = workStopped;
       _sourceObjectRepository = sourceObjectRepository;
       _destiantionMessenger = destiantionMessenger;
+
+      _processorStatus = new ProcessorStatus
+      {
+        SourceName = this.GetType().Name,
+        ProcessorStartTime = DateTime.Now
+      };
     }
 
     public void RepeatableProcess()
@@ -78,6 +87,13 @@ namespace Common.RepeatableProcessors.ImageSetProcessors
       }
 
       Logger.Info("Ended image sending.");
+
+      _processorStatus.ProcessedObjects.AddRange(imageObjectNames);
+    }
+
+    public ProcessorStatus GetProcessorStatus()
+    {
+      return _processorStatus;
     }
   }
 }

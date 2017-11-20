@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Common.Messaging;
 using Common.Models;
 using Common.Repositories;
@@ -15,11 +16,19 @@ namespace Common.RepeatableProcessors.FileProcessors
     private readonly IObjectRepository _sourceObjectRepository;
     private readonly IMessenger _destiantionMessenger;
 
+    private readonly ProcessorStatus _processorStatus;
+
     public FileGetAndSendRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IMessenger destiantionMessenger)
     {
       WorkStopped = workStopped;
       _sourceObjectRepository = sourceObjectRepository;
       _destiantionMessenger = destiantionMessenger;
+
+      _processorStatus = new ProcessorStatus()
+      {
+        SourceName = this.GetType().Name,
+        ProcessorStartTime = DateTime.Now
+      };
     }
 
     public void RepeatableProcess()
@@ -38,6 +47,7 @@ namespace Common.RepeatableProcessors.FileProcessors
       Send(objectName);
 
       Logger.Info($"Ended processing object: {objectName}");
+      _processorStatus.ProcessedObjects.Add(objectName);
     }
 
     private void Send(string objectName)
@@ -50,5 +60,9 @@ namespace Common.RepeatableProcessors.FileProcessors
       _sourceObjectRepository.DeleteObject(objectName);
     }
 
+    ProcessorStatus IRepeatableProcessor.GetProcessorStatus()
+    {
+      return this._processorStatus;
+    }
   }
 }
