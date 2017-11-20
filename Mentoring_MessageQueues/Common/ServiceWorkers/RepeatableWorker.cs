@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
-using DocumentCaptureService.RepeatableProcessors;
-using NLog;
+using Common.RepeatableProcessors;
 
-namespace DocumentCaptureService.ServiceWorkers
+namespace Common.ServiceWorkers
 {
   public class RepeatableWorker
   {

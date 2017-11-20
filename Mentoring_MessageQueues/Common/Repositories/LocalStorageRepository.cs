@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DocumentCaptureService.Repositories
+namespace Common.Repositories
 {
   public class LocalStorageRepository : IObjectRepository
   {

@@ -1,7 +1,6 @@
-﻿using System.IO;
-using DocumentCaptureService.Models;
+﻿using Common.Models;
 
-namespace DocumentCaptureService.Messaging
+namespace Common.Messaging
 {
     public interface IMessenger
     {

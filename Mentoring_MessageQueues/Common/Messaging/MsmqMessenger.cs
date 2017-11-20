@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Messaging;
 using System.Text;
-using DocumentCaptureService.Models;
+using Common.Models;
 
-namespace DocumentCaptureService.Messaging
+namespace Common.Messaging
 {
   public class MsmqMessenger : IMessenger
   {

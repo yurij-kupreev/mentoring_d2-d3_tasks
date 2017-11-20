@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using DocumentCaptureService.Repositories;
+using Common.Repositories;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.Rendering;
 
-namespace DocumentCaptureService.Helpers
+namespace Common.Helpers
 {
   public class PdfHelper
   {

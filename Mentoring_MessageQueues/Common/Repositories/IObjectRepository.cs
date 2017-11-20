@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace DocumentCaptureService.Repositories
+namespace Common.Repositories
 {
   public interface IObjectRepository
   {

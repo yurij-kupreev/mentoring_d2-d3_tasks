@@ -61,9 +61,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DocumentCaptureService\DocumentCaptureService.csproj">
-      <Project>{1ab7d06f-ebd2-472b-b1e4-3deb754fe987}</Project>
-      <Name>DocumentCaptureService</Name>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{1c66bed4-138a-42e6-ba85-3048bde012d7}</Project>
+      <Name>Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

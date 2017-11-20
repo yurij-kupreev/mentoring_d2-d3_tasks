@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1AB7D06F-EBD2-472B-B1E4-3DEB754FE987}</ProjectGuid>
+    <ProjectGuid>{98F58922-6D54-4E0E-93B5-4F7CBFFC5EC2}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>DocumentCaptureService</RootNamespace>
-    <AssemblyName>DocumentCaptureService</AssemblyName>
+    <RootNamespace>RemoteControl</RootNamespace>
+    <AssemblyName>RemoteControl</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -33,10 +33,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.3.10\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -54,18 +53,20 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\FileProcessService.cs" />
+    <Compile Include="Services\RemoteControlService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{1c66bed4-138a-42e6-ba85-3048bde012d7}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DocumentCaptureService\DocumentCaptureService.csproj">
+      <Project>{1ab7d06f-ebd2-472b-b1e4-3deb754fe987}</Project>
+      <Name>DocumentCaptureService</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

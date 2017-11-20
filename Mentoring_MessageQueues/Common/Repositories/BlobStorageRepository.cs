@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
-namespace DocumentCaptureService.Repositories
+namespace Common.Repositories
 {
   public class BlobStorageRepository: IObjectRepository
   {

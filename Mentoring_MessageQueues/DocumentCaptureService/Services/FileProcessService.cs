@@ -2,12 +2,11 @@
 using System.Configuration;
 using System.IO;
 using System.Threading;
-using DocumentCaptureService.Messaging;
-using DocumentCaptureService.RepeatableProcessors;
-using DocumentCaptureService.RepeatableProcessors.FileProcessors;
-using DocumentCaptureService.RepeatableProcessors.ImageSetProcessors;
-using DocumentCaptureService.Repositories;
-using DocumentCaptureService.ServiceWorkers;
+using Common.Messaging;
+using Common.RepeatableProcessors.FileProcessors;
+using Common.RepeatableProcessors.ImageSetProcessors;
+using Common.Repositories;
+using Common.ServiceWorkers;
 using NLog;
 
 namespace DocumentCaptureService.Services

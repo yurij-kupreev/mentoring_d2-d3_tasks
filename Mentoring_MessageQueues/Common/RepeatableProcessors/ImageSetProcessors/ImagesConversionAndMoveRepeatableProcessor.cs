@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using DocumentCaptureService.Helpers;
-using DocumentCaptureService.Repositories;
+using Common.Helpers;
+using Common.Repositories;
 using NLog;
 
-namespace DocumentCaptureService.RepeatableProcessors.ImageSetProcessors
+namespace Common.RepeatableProcessors.ImageSetProcessors
 {
   public class ImagesConversionAndMoveRepeatableProcessor : IRepeatableProcessor
   {

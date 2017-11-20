@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using DocumentCaptureService.Repositories;
+using Common.Repositories;
 using NLog;
 
-namespace DocumentCaptureService.RepeatableProcessors.FileProcessors
+namespace Common.RepeatableProcessors.FileProcessors
 {
   public class SingleFileMoveRepeatableProcessor : IRepeatableProcessor
   {

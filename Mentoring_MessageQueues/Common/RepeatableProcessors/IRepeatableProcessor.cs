@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-
-namespace DocumentCaptureService.RepeatableProcessors
+﻿namespace Common.RepeatableProcessors
 {
   public interface IRepeatableProcessor
   {

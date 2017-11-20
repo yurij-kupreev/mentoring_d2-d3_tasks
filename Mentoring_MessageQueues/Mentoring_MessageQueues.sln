@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentCaptureService", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentralProcessor", "CentralProcessor\CentralProcessor.csproj", "{D423B0D3-8660-4BA4-8FCA-AC8E48B26EC3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteControl", "RemoteControl\RemoteControl.csproj", "{98F58922-6D54-4E0E-93B5-4F7CBFFC5EC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{1C66BED4-138A-42E6-BA85-3048BDE012D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{D423B0D3-8660-4BA4-8FCA-AC8E48B26EC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D423B0D3-8660-4BA4-8FCA-AC8E48B26EC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D423B0D3-8660-4BA4-8FCA-AC8E48B26EC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98F58922-6D54-4E0E-93B5-4F7CBFFC5EC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98F58922-6D54-4E0E-93B5-4F7CBFFC5EC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98F58922-6D54-4E0E-93B5-4F7CBFFC5EC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98F58922-6D54-4E0E-93B5-4F7CBFFC5EC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C66BED4-138A-42E6-BA85-3048BDE012D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C66BED4-138A-42E6-BA85-3048BDE012D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C66BED4-138A-42E6-BA85-3048BDE012D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C66BED4-138A-42E6-BA85-3048BDE012D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

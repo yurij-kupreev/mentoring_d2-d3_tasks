@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace DocumentCaptureService.Models
+namespace Common.Models
 {
   [Serializable]
   public class CustomMessage

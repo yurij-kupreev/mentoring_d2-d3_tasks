@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DocumentCaptureService.Models
+namespace Common.Models
 {
     [Serializable]
     public class ChunkMessage

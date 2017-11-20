@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CentralProcessor.Services;
-using DocumentCaptureService.Services;
+﻿using CentralProcessor.Services;
 using Topshelf;
 
 namespace CentralProcessor
