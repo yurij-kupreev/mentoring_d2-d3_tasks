@@ -4,14 +4,12 @@ using System.Configuration;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using Common.Builders;
 using Common.Helpers;
 using Common.Messaging;
 using Common.Models;
 using Common.RepeatableProcessors;
-using Common.RepeatableProcessors.FileProcessors;
-using Common.RepeatableProcessors.ImageSetProcessors;
 using Common.Repositories;
-using Common.ServiceWorkers;
 using NLog;
 using Timer = System.Timers.Timer;
 
@@ -59,46 +57,36 @@ namespace CentralProcessor.Services
 
     private void InitSingleFileReceive()
     {
-      var outputDirectory = ConfigurationManager.AppSettings[AppKeys.FilesOutputDirectoryKey];
-
       var messenger = new MsmqMessenger(ConfigurationManager.AppSettings[AppKeys.MsmqSingleFileQueueNameKey]);
+      var destinationRepository = new LocalStorageRepository(ConfigurationManager.AppSettings[AppKeys.FilesOutputDirectoryKey]);
 
-      var destinationRepository = new LocalStorageRepository(outputDirectory);
+      var workerBuilder = WorkerBuilderFactory.Create()
+        .WithTimerTickNonStoppedWaitHandle()
+        .WithWorkStoppedHandle(_workStopped)
+        .WithFileReceiveAndMoveRepeatableProcessor(messenger, destinationRepository);
 
-      var timerTicked = new AutoResetEvent(false);
-      var timer = new Timer {Interval = 1000};
-      timer.Elapsed += (sender, e) => {
-        Logger.Info("Timer tick");
-        timerTicked.Set();
-      };
+      var fileServiceProcessor = workerBuilder.Build();
 
-      var imagesConversionAndMoveRepeatableProcessor = new FileReceiveAndMoveRepeatableProcessor(_workStopped, messenger, destinationRepository);
-      var imageServiceProcessor = new RepeatableWorker(imagesConversionAndMoveRepeatableProcessor, _workStopped, timerTicked);
-      _workingThreads.Add(imageServiceProcessor.GetThread());
-      _timers.Add(timer);
-      _processors.Add(imagesConversionAndMoveRepeatableProcessor);
+      _workingThreads.Add(fileServiceProcessor.GetThread());
+      _timers.Add(workerBuilder.WorkerProcessorsBuilder.WorkersWaitHandlesBuilder.Timer);
+      _processors.Add(workerBuilder.RepeatableProcessor);
     }
 
     private void InitImageSetReceive()
     {
-      var outputDirectory = ConfigurationManager.AppSettings[AppKeys.ImagesInputDirectoryKey];
-
       var messenger = new MsmqMessenger(ConfigurationManager.AppSettings[AppKeys.MsmqImageSetQueueNameKey]);
+      var destinationRepository = new LocalStorageRepository(ConfigurationManager.AppSettings[AppKeys.ImagesInputDirectoryKey]);
 
-      var destinationRepository = new LocalStorageRepository(outputDirectory);
+      var workerBuilder = WorkerBuilderFactory.Create()
+        .WithTimerTickNonStoppedWaitHandle()
+        .WithWorkStoppedHandle(_workStopped)
+        .WithFileReceiveAndMoveRepeatableProcessor(messenger, destinationRepository);
 
-      var timerTicked = new AutoResetEvent(false);
-      var timer = new Timer { Interval = 1000 };
-      timer.Elapsed += (sender, e) => {
-        Logger.Info("Timer tick");
-        timerTicked.Set();
-      };
+      var fileServiceProcessor = workerBuilder.Build();
 
-      var imagesConversionAndMoveRepeatableProcessor = new FileReceiveAndMoveRepeatableProcessor(_workStopped, messenger, destinationRepository);
-      var imageServiceProcessor = new RepeatableWorker(imagesConversionAndMoveRepeatableProcessor, _workStopped, timerTicked);
-      _workingThreads.Add(imageServiceProcessor.GetThread());
-      _timers.Add(timer);
-      _processors.Add(imagesConversionAndMoveRepeatableProcessor);
+      _workingThreads.Add(fileServiceProcessor.GetThread());
+      _timers.Add(workerBuilder.WorkerProcessorsBuilder.WorkersWaitHandlesBuilder.Timer);
+      _processors.Add(workerBuilder.RepeatableProcessor);
 
       InitImageProcessor();
     }
@@ -111,19 +99,16 @@ namespace CentralProcessor.Services
       var sourceRepository = new LocalStorageRepository(imagesDirectory);
       var destinationRepository = new LocalStorageRepository(outputDirectory);
 
-      var newFileAdded = new AutoResetEvent(false);
-      var watcher = new FileSystemWatcher(imagesDirectory);
+      var workerBuilder = WorkerBuilderFactory.Create()
+        .WithFileSystemWatcherNonStoppedWaitHandle(imagesDirectory)
+        .WithWorkStoppedHandle(_workStopped)
+        .WithImagesConversionAndMoveRepeatableProcessor(sourceRepository, destinationRepository);
 
-      watcher.Created += (sender, e) => {
-        Logger.Info($"Create event has been raised. Name: {e.Name}, Path: {e.FullPath}, Event type: {e.ChangeType}");
-        newFileAdded.Set();
-      };
+      var fileServiceProcessor = workerBuilder.Build();
 
-      var imagesConversionAndMoveRepeatableProcessor = new ImagesConversionAndMoveRepeatableProcessor(_workStopped, sourceRepository, destinationRepository);
-      var imageServiceProcessor = new RepeatableWorker(imagesConversionAndMoveRepeatableProcessor, _workStopped, newFileAdded);
-      _workingThreads.Add(imageServiceProcessor.GetThread());
-      _watchers.Add(watcher);
-      _processors.Add(imagesConversionAndMoveRepeatableProcessor);
+      _workingThreads.Add(fileServiceProcessor.GetThread());
+      _watchers.Add(workerBuilder.WorkerProcessorsBuilder.WorkersWaitHandlesBuilder.FileSystemWatcher);
+      _processors.Add(workerBuilder.RepeatableProcessor);
     }
 
     private void InitStatusSending()

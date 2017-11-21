@@ -90,6 +90,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\WorkerBuilder.cs" />
+    <Compile Include="Builders\WorkerBuilderFactory.cs" />
+    <Compile Include="Builders\WorkerProcessorsBuilder.cs" />
+    <Compile Include="Builders\WorkersWaitHandlesBuilder.cs" />
     <Compile Include="Helpers\AppKeys.cs" />
     <Compile Include="Helpers\PdfHelper.cs" />
     <Compile Include="Messaging\IMessenger.cs" />

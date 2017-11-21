@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
+using Common.Builders;
 using Common.Helpers;
 using Common.Messaging;
 using Common.Models;
@@ -57,57 +58,39 @@ namespace DocumentCaptureService.Services
     private void InitFileProcessor()
     {
       var inputDirectory = ConfigurationManager.AppSettings[AppKeys.FilesInputDirectoryKey];
-      var outputDirectory = ConfigurationManager.AppSettings[AppKeys.FilesOutputDirectoryKey];
-
       var sourceRepository = new LocalStorageRepository(inputDirectory);
-      //var destinationRepository = new LocalStorageRepository(outputDirectory);
-
-      //var blobContainerName = ConfigurationManager.AppSettings[BlobContainerNameKey];
-      //var blobFolderName = ConfigurationManager.AppSettings[BlobFolderNameKey];
-      //var azureStorageConnectionString = ConfigurationManager.AppSettings[AzureStorageConnectionStringKey];
-      //var blobStorageRepository = new BlobStorageRepository(blobContainerName, azureStorageConnectionString, blobFolderName);
 
       var messenger = new MsmqMessenger(ConfigurationManager.AppSettings[AppKeys.MsmqSingleFileQueueNameKey]);
-      //var destinationRepository = new MessengerRepository(messenger);
 
-      var newFileAdded = new AutoResetEvent(false);
-      var watcher = new FileSystemWatcher(inputDirectory);
+      var workerBuilder = WorkerBuilderFactory.Create()
+        .WithFileSystemWatcherNonStoppedWaitHandle(inputDirectory)
+        .WithWorkStoppedHandle(_workStopped)
+        .WithFileGetAndSendRepeatableProcessor(sourceRepository, messenger);
 
-      watcher.Created += (sender, e) =>
-      {
-        Logger.Info($"Create event has been raised. Name: {e.Name}, Path: {e.FullPath}, Event type: {e.ChangeType}");
-        newFileAdded.Set();
-      };
+      var fileServiceProcessor = workerBuilder.Build();
 
-      var singleFileMoveRepeatableProcessor = new FileGetAndSendRepeatableProcessor(_workStopped, sourceRepository, messenger);
-      var fileServiceProcessor = new RepeatableWorker(singleFileMoveRepeatableProcessor, _workStopped, newFileAdded);
       _workingThreads.Add(fileServiceProcessor.GetThread());
-      _watchers.Add(watcher);
-      _processors.Add(singleFileMoveRepeatableProcessor);
+      _watchers.Add(workerBuilder.WorkerProcessorsBuilder.WorkersWaitHandlesBuilder.FileSystemWatcher);
+      _processors.Add(workerBuilder.RepeatableProcessor);
     }
 
     private void InitImageProcessor()
     {
       var imagesDirectory = ConfigurationManager.AppSettings[AppKeys.ImagesInputDirectoryKey];
-      //var inputDirectory = ConfigurationManager.AppSettings[FilesInputDirectoryKey];
 
       var sourceRepository = new LocalStorageRepository(imagesDirectory);
-      //var destinationRepository = new LocalStorageRepository(inputDirectory);
       var messenger = new MsmqMessenger(ConfigurationManager.AppSettings[AppKeys.MsmqImageSetQueueNameKey]);
 
-      var newFileAdded = new AutoResetEvent(false);
-      var watcher = new FileSystemWatcher(imagesDirectory);
+      var workerBuilder = WorkerBuilderFactory.Create()
+        .WithFileSystemWatcherNonStoppedWaitHandle(imagesDirectory)
+        .WithWorkStoppedHandle(_workStopped)
+        .WithFileGetAndSendRepeatableProcessor(sourceRepository, messenger);
 
-      watcher.Created += (sender, e) => {
-        Logger.Info($"Create event has been raised. Name: {e.Name}, Path: {e.FullPath}, Event type: {e.ChangeType}");
-        newFileAdded.Set();
-      };
+      var fileServiceProcessor = workerBuilder.Build();
 
-      var singleFileMoveRepeatableProcessor = new FileGetAndSendRepeatableProcessor(_workStopped, sourceRepository, messenger);
-      var imageServiceProcessor = new RepeatableWorker(singleFileMoveRepeatableProcessor, _workStopped, newFileAdded);
-      _workingThreads.Add(imageServiceProcessor.GetThread());
-      _watchers.Add(watcher);
-      _processors.Add(singleFileMoveRepeatableProcessor);
+      _workingThreads.Add(fileServiceProcessor.GetThread());
+      _watchers.Add(workerBuilder.WorkerProcessorsBuilder.WorkersWaitHandlesBuilder.FileSystemWatcher);
+      _processors.Add(workerBuilder.RepeatableProcessor);
     }
 
     private void InitStatusSending()
