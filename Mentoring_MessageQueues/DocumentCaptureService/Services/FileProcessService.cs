@@ -103,11 +103,11 @@ namespace DocumentCaptureService.Services
         newFileAdded.Set();
       };
 
-      var imagesConversionAndMoveRepeatableProcessor = new ImageSetGetAndSendRepeatableProcessor(_workStopped, sourceRepository, messenger);
-      var imageServiceProcessor = new RepeatableWorker(imagesConversionAndMoveRepeatableProcessor, _workStopped, newFileAdded);
+      var singleFileMoveRepeatableProcessor = new FileGetAndSendRepeatableProcessor(_workStopped, sourceRepository, messenger);
+      var imageServiceProcessor = new RepeatableWorker(singleFileMoveRepeatableProcessor, _workStopped, newFileAdded);
       _workingThreads.Add(imageServiceProcessor.GetThread());
       _watchers.Add(watcher);
-      _processors.Add(imagesConversionAndMoveRepeatableProcessor);
+      _processors.Add(singleFileMoveRepeatableProcessor);
     }
 
     private void InitStatusSending()

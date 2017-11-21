@@ -9,91 +9,91 @@ using NLog;
 
 namespace Common.RepeatableProcessors.ImageSetProcessors
 {
-  public class ImageSetGetAndSendRepeatableProcessor : IRepeatableProcessor
-  {
-    public WaitHandle WorkStopped { get; set; }
+  //public class ImageSetGetAndSendRepeatableProcessor : IRepeatableProcessor
+  //{
+  //  public WaitHandle WorkStopped { get; set; }
 
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+  //  private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-    private readonly IObjectRepository _sourceObjectRepository;
-    private readonly IMessenger _destiantionMessenger;
+  //  private readonly IObjectRepository _sourceObjectRepository;
+  //  private readonly IMessenger _destiantionMessenger;
 
-    private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
-    private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
+  //  private const string ImageFileNamePattern = @"[\s\S]*[.](?:png|jpeg|jpg)";
+  //  private const string EndImageFileNamePattern = @"[\s\S]*End[.](?:png|jpeg|jpg)";
 
-    private readonly ProcessorStatus _processorStatus;
+  //  private readonly ProcessorStatus _processorStatus;
 
-    public ImageSetGetAndSendRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IMessenger destiantionMessenger)
-    {
-      WorkStopped = workStopped;
-      _sourceObjectRepository = sourceObjectRepository;
-      _destiantionMessenger = destiantionMessenger;
+  //  public ImageSetGetAndSendRepeatableProcessor(WaitHandle workStopped, IObjectRepository sourceObjectRepository, IMessenger destiantionMessenger)
+  //  {
+  //    WorkStopped = workStopped;
+  //    _sourceObjectRepository = sourceObjectRepository;
+  //    _destiantionMessenger = destiantionMessenger;
 
-      _processorStatus = new ProcessorStatus
-      {
-        SourceName = this.GetType().Name,
-        ProcessorStartTime = DateTime.Now
-      };
-    }
+  //    _processorStatus = new ProcessorStatus
+  //    {
+  //      SourceName = this.GetType().Name,
+  //      ProcessorStartTime = DateTime.Now
+  //    };
+  //  }
 
-    public void RepeatableProcess()
-    {
-      var wasEndImage = false;
-      var imageObjectNames = new List<string>();
+  //  public void RepeatableProcess()
+  //  {
+  //    var wasEndImage = false;
+  //    var imageObjectNames = new List<string>();
 
-      foreach (var objectName in _sourceObjectRepository.EnumerateObjects()) {
-        if (WorkStopped.WaitOne(0)) {
-          if (wasEndImage) SendDocuments(imageObjectNames);
-          return;
-        }
+  //    foreach (var objectName in _sourceObjectRepository.EnumerateObjects()) {
+  //      if (WorkStopped.WaitOne(0)) {
+  //        if (wasEndImage) SendDocuments(imageObjectNames);
+  //        return;
+  //      }
 
-        if (IsImage(objectName)) {
-          wasEndImage = wasEndImage | IsEndImage(objectName);
-          imageObjectNames.Add(objectName);
-        }
-      }
+  //      if (IsImage(objectName)) {
+  //        wasEndImage = wasEndImage | IsEndImage(objectName);
+  //        imageObjectNames.Add(objectName);
+  //      }
+  //    }
 
-      if (wasEndImage) {
-        SendDocuments(imageObjectNames);
-      }
-    }
+  //    if (wasEndImage) {
+  //      SendDocuments(imageObjectNames);
+  //    }
+  //  }
 
-    private bool IsImage(string fileName)
-    {
-      var regex = new Regex(ImageFileNamePattern, RegexOptions.IgnoreCase);
+  //  private bool IsImage(string fileName)
+  //  {
+  //    var regex = new Regex(ImageFileNamePattern, RegexOptions.IgnoreCase);
 
-      return regex.IsMatch(fileName);
-    }
+  //    return regex.IsMatch(fileName);
+  //  }
 
 
-    //The file should end with "End" substring. "True" result should run pdf save process.
-    private bool IsEndImage(string fileName)
-    {
-      var regex = new Regex(EndImageFileNamePattern, RegexOptions.IgnoreCase);
+  //  //The file should end with "End" substring. "True" result should run pdf save process.
+  //  private bool IsEndImage(string fileName)
+  //  {
+  //    var regex = new Regex(EndImageFileNamePattern, RegexOptions.IgnoreCase);
 
-      return regex.IsMatch(fileName);
-    }
+  //    return regex.IsMatch(fileName);
+  //  }
 
-    private void SendDocuments(IEnumerable<string> imageObjectNames)
-    {
-      Logger.Info($"Start images sending: {string.Join(", ", imageObjectNames)}");
+  //  private void SendDocuments(IEnumerable<string> imageObjectNames)
+  //  {
+  //    Logger.Info($"Start images sending: {string.Join(", ", imageObjectNames)}");
 
-      foreach (var imageObjectName in imageObjectNames) {
-        var stream = _sourceObjectRepository.OpenObjectStream(imageObjectName);
+  //    foreach (var imageObjectName in imageObjectNames) {
+  //      var stream = _sourceObjectRepository.OpenObjectStream(imageObjectName);
 
-        using (stream) {
-          _destiantionMessenger.Send(new CustomMessage { Label = imageObjectName, Body = stream });
-        }
-      }
+  //      using (stream) {
+  //        _destiantionMessenger.Send(new CustomMessage { Label = imageObjectName, Body = stream });
+  //      }
+  //    }
 
-      Logger.Info("Ended image sending.");
+  //    Logger.Info("Ended image sending.");
 
-      _processorStatus.ProcessedObjects.AddRange(imageObjectNames);
-    }
+  //    _processorStatus.ProcessedObjects.AddRange(imageObjectNames);
+  //  }
 
-    public ProcessorStatus GetProcessorStatus()
-    {
-      return _processorStatus;
-    }
-  }
+  //  public ProcessorStatus GetProcessorStatus()
+  //  {
+  //    return _processorStatus;
+  //  }
+  //}
 }
