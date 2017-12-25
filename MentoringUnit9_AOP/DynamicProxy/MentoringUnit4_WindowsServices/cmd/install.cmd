@@ -1,0 +1,1 @@
+..\\bin\Debug\MentoringUnit4_WindowsServices.exe install
