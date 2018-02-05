@@ -15,9 +15,8 @@ namespace DownloadManager.MainWindowModule
     private string _sourceAddress;
     public string SourceAddress
     {
-      get { return _sourceAddress; }
-      set
-      {
+      get => _sourceAddress;
+      set {
         _sourceAddress = value;
         OnPropertyChanged();
       }
@@ -26,9 +25,8 @@ namespace DownloadManager.MainWindowModule
     private string _content;
     public string Content
     {
-      get { return _content; }
-      set
-      {
+      get => _content;
+      set {
         _content = value;
         OnPropertyChanged();
       }
@@ -37,9 +35,8 @@ namespace DownloadManager.MainWindowModule
     private bool _isDownloadingInProgress;
     public bool IsDownloadingInProgress
     {
-      get { return _isDownloadingInProgress; }
-      set
-      {
+      get => _isDownloadingInProgress;
+      set {
         _isDownloadingInProgress = value;
         OnPropertyChanged();
       }
@@ -51,13 +48,28 @@ namespace DownloadManager.MainWindowModule
     private RelayCommand _downloadCommand;
     public RelayCommand DownloadCommand => _downloadCommand ?? (_downloadCommand = new RelayCommand(this.DownloadCommandAction));
 
+    private RelayCommand _downloadSyncCommand;
+    public RelayCommand DownloadSyncCommand => _downloadSyncCommand ?? (_downloadSyncCommand = new RelayCommand(this.DownloadSyncCommandAction));
+
     public async void DownloadCommandAction(object obj)
     {
       IsDownloadingInProgress = true;
       _cancellationTokenSource = new CancellationTokenSource();
       this.Content = "Loading...";
 
-      this.Content = await _downloadService.Download(this.SourceAddress, _cancellationTokenSource.Token);
+      this.Content = await _downloadService.DownloadAsync(this.SourceAddress, _cancellationTokenSource.Token);
+
+      IsDownloadingInProgress = false;
+
+      MessageBox.Show("Operation has been completed.", "Done.", MessageBoxButton.OK);
+    }
+
+    public void DownloadSyncCommandAction(object obj)
+    {
+      IsDownloadingInProgress = true;
+      this.Content = "Loading...";
+
+      this.Content = _downloadService.Download(this.SourceAddress);
 
       IsDownloadingInProgress = false;
 
